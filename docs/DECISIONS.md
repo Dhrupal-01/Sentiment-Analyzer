@@ -79,3 +79,49 @@ This document tracks all non-trivial technical and architectural decisions for t
 - **Alternatives Rejected**:
   - Separate `black` + `flake8` + `isort`: Rejected due to execution overhead and configuration fragmentation.
   - Loose / permissive typing: Rejected because production reliability is an explicit project goal.
+
+---
+
+## ADR-007: News Ingestion Sources & Terms of Use Compliance
+- **Date**: 2026-10-08
+- **Decision**: Implement three complementary news sources (GDELT DOC 2.0 as primary default, Publisher RSS feeds via `feedparser`, and NewsAPI as an optional key-gated provider). Explicitly document and adhere to each source's terms of service:
+  1. **GDELT DOC 2.0 API (Default)**:
+     - *Terms of Use*: Open access public research project. No API key required. Permits research and non-commercial/commercial indexing and headline analytics. Requires responsible rate pacing (enforced via `rate_limit_gdelt`, minimum 1.0s spacing).
+  2. **Publisher RSS Feeds (Feedparser)**:
+     - *Terms of Use*: Standard publisher RSS terms permit reading and syndicating headline titles, summaries, and canonical URLs for monitoring and non-commercial personal/research indexing under copyright Fair Use. Scraping or republishing full article body text is strictly prohibited and not implemented.
+  3. **NewsAPI.org (Optional)**:
+     - *Terms of Use*: The free Developer tier is strictly restricted to development, testing, and non-commercial personal projects. It enforces a 100 requests per 24-hour quota, up to 24-hour article publication delays, and requires attribution. Configured as an optional provider, only activated when an explicit `NEWSAPI_KEY` is provided.
+- **Reasoning**:
+  - Guarantees immediate zero-configuration out-of-the-box functionality via GDELT and RSS without requiring external API keys.
+  - Maintains strict legal and terms-of-service compliance across all sources.
+- **Alternatives Rejected**:
+  - Web scraping HTML news pages directly: Rejected due to fragile DOM parsing, frequent anti-bot blocks (Cloudflare, Akamai), and copyright/TOS violation risks.
+  - Commercial paid APIs (Bloomberg, Factiva, Reuters News API): Rejected to keep the project open-source and reproducible without costly subscriptions.
+
+---
+
+## ADR-008: Multi-Stage Deduplication and Audit Trail Architecture
+- **Date**: 2026-10-08
+- **Decision**: Deduplicate articles using a two-stage filter (exact URL canonicalization and normalized-title matching), and audit duplicate occurrences in an `article_duplicates` table rather than silently dropping them.
+- **Reasoning**:
+  - Ingesting headlines across multiple providers inherently produces duplicates when multiple outlets syndicate the same AP/Reuters story or when marketing query parameters vary.
+  - Stage 1 canonicalizes URLs by lowercasing scheme/domain and stripping tracking parameters (`utm_*`, `gclid`, `fbclid`, `ref`).
+  - Stage 2 normalizes headline titles by lowercasing, stripping punctuation, and removing publisher suffixes (e.g. ` - Reuters`, ` | BBC News`, ` — Wall Street Journal`).
+  - Storing duplicates in `article_duplicates` preserves auditability, allows measuring cross-source duplication rates, and keeps the canonical `articles` table pristine for model inference and evaluation.
+- **Alternatives Rejected**:
+  - Silent drops (`INSERT OR IGNORE` without logging): Rejected because it destroys operational provenance and prevents evaluating cross-outlet syndication overlap.
+  - Fuzzy Levenshtein / embedding similarity in database queries: Rejected as overly slow for high-throughput ingestion; deterministic normalized titles provide predictable, indexed O(1) performance.
+
+---
+
+## ADR-009: Relational Persistence with SQLAlchemy 2.0 and Alembic
+- **Date**: 2026-10-08
+- **Decision**: Use SQLAlchemy 2.0 Declarative Mapping (`Mapped` and `mapped_column`) with Alembic version-controlled migrations for both SQLite (local development/testing) and PostgreSQL (production).
+- **Reasoning**:
+  - SQLite zero-configuration database enables fully offline tests and local iteration.
+  - Generic SQLAlchemy column types (`DateTime(timezone=True)`, `String`, `Text`, `Boolean`) guarantee clean portability to PostgreSQL in production Docker containers.
+  - Alembic tracks schema changes with explicit migration revisions (`0001_initial_schema.py`).
+- **Alternatives Rejected**:
+  - Raw SQLite `sqlite3` driver with raw SQL strings: Rejected due to lack of portability to PostgreSQL and missing schema migration management.
+  - Heavy NoSQL or Document store (MongoDB): Rejected because structured relational data with foreign-key auditing between articles, topics, duplicates, and ingestion runs is fundamentally relational.
+

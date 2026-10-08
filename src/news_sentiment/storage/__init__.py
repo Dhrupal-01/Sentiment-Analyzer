@@ -1,1 +1,38 @@
-"""Storage and persistence layer: SQLAlchemy models, SQLite/PostgreSQL engine, and migrations."""
+"""Storage layer: SQLAlchemy models, database engine, migrations, and repositories."""
+
+from news_sentiment.storage.database import (
+    get_db_session,
+    get_engine,
+    get_session_factory,
+    init_db,
+)
+from news_sentiment.storage.dedup import normalize_title, normalize_url
+from news_sentiment.storage.models import (
+    Article,
+    ArticleDuplicate,
+    Base,
+    IngestionRun,
+    Topic,
+)
+from news_sentiment.storage.repository import (
+    ArticleRepository,
+    IngestionRunRepository,
+    TopicRepository,
+)
+
+__all__ = [
+    "Article",
+    "ArticleDuplicate",
+    "ArticleRepository",
+    "Base",
+    "IngestionRun",
+    "IngestionRunRepository",
+    "Topic",
+    "TopicRepository",
+    "get_db_session",
+    "get_engine",
+    "get_session_factory",
+    "init_db",
+    "normalize_title",
+    "normalize_url",
+]

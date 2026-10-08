@@ -57,6 +57,35 @@ class Settings(BaseSettings):
         default=["http://localhost:5173", "http://127.0.0.1:5173"],
         description="Allowed CORS origins for the frontend",
     )
+    newsapi_key: str | None = Field(
+        default=None,
+        description="Optional NewsAPI API key (developer/free tier)",
+    )
+    request_timeout: float = Field(
+        default=15.0,
+        description="HTTP request timeout in seconds",
+    )
+    rate_limit_gdelt: float = Field(
+        default=1.0,
+        description="Minimum seconds interval between GDELT requests",
+    )
+    rate_limit_rss: float = Field(
+        default=0.5,
+        description="Minimum seconds interval between RSS feed requests",
+    )
+    rate_limit_newsapi: float = Field(
+        default=1.0,
+        description="Minimum seconds interval between NewsAPI requests",
+    )
+    default_rss_feeds: list[str] = Field(
+        default=[
+            "https://feeds.bbci.co.uk/news/world/rss.xml",
+            "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
+            "https://feeds.npr.org/1004/rss.xml",
+            "https://search.cnbc.com/rs/search/view.html?partnerId=2000&keywords=markets&sort=date",
+        ],
+        description="Default list of publisher RSS feed URLs for ingestion",
+    )
 
 
 @lru_cache(maxsize=1)
