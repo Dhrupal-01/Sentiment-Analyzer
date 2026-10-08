@@ -1,0 +1,21 @@
+{
+  "dataset_name": "Financial PhraseBank",
+  "subset": "Sentences_AllAgree (100% agreement)",
+  "source_citation": "Malo, P., Sinha, A., Korhonen, P., Wallenius, J., & Takala, P. (2014). Good debt or bad debt: Detecting semantic orientations in economic texts. Journal of the Association for Information Science and Technology, 65(4), 782-796.",
+  "source_url": "https://raw.githubusercontent.com/maxwellsarpong/NLP-financial-text-processing-dataset/master/Sentences_AllAgree.txt",
+  "license": "Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)",
+  "sha256": "3d1acdf23036bdbfb48713548731b1ae82664e551081fec2f20bfe722d274d9a",
+  "seed": 42,
+  "total_samples": 2264,
+  "split_counts": {
+    "train": 1584,
+    "val": 338,
+    "test": 342
+  },
+  "class_distribution_all": {
+    "neutral": 1391,
+    "positive": 570,
+    "negative": 303
+  },
+  "justification": "Selected the 100% agreement subset (AllAgree) to establish an unambiguous, zero-noise gold standard. Sentences with lower agreement (50%, 66%, 75%) contain subjective or ambiguous financial framing that introduces inter-annotator noise. Unanimous consensus guarantees that evaluation errors reflect true model classification failure."
+}

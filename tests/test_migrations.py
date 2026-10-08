@@ -31,9 +31,23 @@ def test_migrations_clean_database_lifecycle() -> None:
             "article_duplicates",
             "ingestion_runs",
             "predictions",
+            "article_annotations",
             "alembic_version",
         }
         assert expected_tables.issubset(table_names)
+
+        # Verify columns on article_annotations table
+        anno_cols = {col["name"] for col in inspector.get_columns("article_annotations")}
+        expected_anno_cols = {
+            "id",
+            "article_id",
+            "annotator_id",
+            "label",
+            "notes",
+            "created_at",
+            "updated_at",
+        }
+        assert expected_anno_cols.issubset(anno_cols)
 
         # Verify columns on predictions table
         pred_cols = {col["name"] for col in inspector.get_columns("predictions")}

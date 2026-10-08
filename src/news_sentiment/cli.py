@@ -5,11 +5,13 @@ from typing import Annotated
 import typer
 
 from news_sentiment import __version__
+from news_sentiment.evaluation.metrics import compute_confusion_matrix
+from news_sentiment.models.metrics import compute_agreement_rate, compute_cohen_kappa
 from news_sentiment.models.pipeline import InferencePipeline
 from news_sentiment.models.registry import get_model
 from news_sentiment.sources.service import IngestionService
 from news_sentiment.storage.database import get_db_session, init_db
-from news_sentiment.storage.repository import TopicRepository
+from news_sentiment.storage.repository import AnnotationRepository, TopicRepository
 
 app = typer.Typer(
     name="newsent",
@@ -334,6 +336,180 @@ def topics_list_cmd() -> None:
         for t in topics:
             status_str = "active" if t.is_active else "inactive"
             typer.echo(f"  • {t.name:<15} [{status_str:^8}] query: '{t.query}'")
+
+
+@app.command("label")
+def label_cmd(
+    annotator: Annotated[
+        str,
+        typer.Option(
+            "--annotator",
+            "-a",
+            help="Unique annotator username or identifier.",
+        ),
+    ] = "annotator_1",
+    limit: Annotated[
+        int,
+        typer.Option(
+            "--limit",
+            "-l",
+            help="Maximum number of headlines to present in this session.",
+        ),
+    ] = 300,
+    stratified: Annotated[
+        bool,
+        typer.Option(
+            "--stratified/--no-stratified",
+            help="Whether to sample headlines stratified across topics and sources.",
+        ),
+    ] = True,
+    seed: Annotated[
+        int,
+        typer.Option(
+            "--seed",
+            help="Random seed for deterministic sampling.",
+        ),
+    ] = 42,
+) -> None:
+    """Interactively label stored headlines with human ground-truth sentiment."""
+    init_db()
+    with get_db_session() as session:
+        candidates = AnnotationRepository.get_stratified_sample(
+            session=session,
+            annotator_id=annotator,
+            sample_size=limit,
+            seed=seed,
+        )
+
+        if not candidates:
+            typer.echo(
+                f"No unannotated headlines available for '{annotator}'. "
+                "Ingest more headlines with 'newsent ingest' or 'newsent collect'."
+            )
+            return
+
+        typer.echo(f"\nLoaded {len(candidates)} candidate headline(s) for annotator '{annotator}'.")
+        typer.echo("Options: [p]ositive | [n]eutral | [e]gative | [s]kip | [q]uit")
+        typer.echo("-" * 72)
+
+        labeled_count = 0
+        for idx, art in enumerate(candidates, 1):
+            src_str = art.outlet or art.provider
+            typer.echo(f"\n[{idx}/{len(candidates)}] Topic: {art.topic} | Source: {src_str}")
+            typer.echo(f'Title: "{art.title}"')
+            if art.url:
+                typer.echo(f"URL:   {art.url}")
+
+            # Prompt strictly without suggestions or pre-fills
+            choice = ""
+            while choice not in ("p", "n", "e", "s", "q", "1", "2", "3", "4"):
+                choice = (
+                    typer.prompt("Sentiment ([p]os / [n]eu / n[e]g / [s]kip / [q]uit)")
+                    .strip()
+                    .lower()
+                )
+
+            if choice == "q":
+                typer.echo(f"\nLabeling session ended. {labeled_count} headline(s) annotated.")
+                break
+
+            label_map = {
+                "p": "positive",
+                "1": "positive",
+                "n": "neutral",
+                "2": "neutral",
+                "e": "negative",
+                "3": "negative",
+                "s": "skip",
+                "4": "skip",
+            }
+            assigned_label = label_map[choice]
+
+            notes_input = typer.prompt("Notes (optional, press Enter to skip)", default="").strip()
+            notes = notes_input if notes_input else None
+
+            AnnotationRepository.save_annotation(
+                session=session,
+                article_id=art.id,
+                annotator_id=annotator,
+                label=assigned_label,
+                notes=notes,
+            )
+            session.commit()
+            labeled_count += 1
+            typer.echo(f"Saved: '{assigned_label}'")
+
+        typer.echo(f"\nCompleted session! Total labeled: {labeled_count}.")
+
+
+@app.command("label-agreement")
+def label_agreement_cmd(
+    annotator1: Annotated[
+        str,
+        typer.Option(
+            "--annotator1",
+            "-1",
+            help="Username/ID of the first annotator.",
+        ),
+    ] = "annotator_1",
+    annotator2: Annotated[
+        str,
+        typer.Option(
+            "--annotator2",
+            "-2",
+            help="Username/ID of the second annotator.",
+        ),
+    ] = "annotator_2",
+) -> None:
+    """Compute Cohen's kappa and inter-annotator agreement between two annotators."""
+    init_db()
+    with get_db_session() as session:
+        pairs = AnnotationRepository.get_overlapping_annotations(
+            session=session,
+            annotator_1=annotator1,
+            annotator_2=annotator2,
+            exclude_skipped=True,
+        )
+
+        if not pairs:
+            typer.secho(
+                f"No overlapping non-skipped annotations found between "
+                f"'{annotator1}' and '{annotator2}'.",
+                fg=typer.colors.YELLOW,
+            )
+            return
+
+        labels_1 = [p[0].label for p in pairs]
+        labels_2 = [p[1].label for p in pairs]
+
+        agreement_rate = compute_agreement_rate(labels_1, labels_2)
+        kappa = compute_cohen_kappa(labels_1, labels_2)
+
+        typer.echo(f"\nInter-Annotator Agreement Report: '{annotator1}' vs '{annotator2}'")
+        typer.echo("=" * 72)
+        typer.echo(f"Overlapping Annotations: {len(pairs)}")
+        typer.echo(f"Raw Agreement Rate:      {agreement_rate * 100:.1f}%")
+        typer.echo(f"Cohen’s Kappa (κ):       {kappa:.3f}")
+
+        # Confusion matrix
+        matrix = compute_confusion_matrix(labels_1, labels_2)
+        typer.echo(f"\nConfusion Matrix (Rows: {annotator1}, Columns: {annotator2}):")
+        typer.echo(f"{'':<12} | {'Positive':^10} | {'Neutral':^10} | {'Negative':^10}")
+        typer.echo("-" * 48)
+        for c1 in ("positive", "neutral", "negative"):
+            row = [str(matrix[c1][c2]) for c2 in ("positive", "neutral", "negative")]
+            typer.echo(f"{c1.capitalize():<12} | {row[0]:^10} | {row[1]:^10} | {row[2]:^10}")
+
+        # Disagreements
+        disagreements = [p for p in pairs if p[0].label != p[1].label]
+        typer.echo(f"\nDisagreements ({len(disagreements)} of {len(pairs)} disagreed):")
+        if not disagreements:
+            typer.echo("  Unanimous 100% agreement between annotators!")
+        else:
+            for idx, (a1, a2) in enumerate(disagreements[:15], 1):
+                title = a1.article.title if a1.article else f"Article {a1.article_id}"
+                typer.echo(f'  {idx}. "{title}"')
+                typer.echo(f"     • {annotator1}: {a1.label} | {annotator2}: {a2.label}")
 
 
 def main() -> None:

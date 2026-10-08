@@ -66,6 +66,10 @@ class Article(Base):
         back_populates="article",
         cascade="all, delete-orphan",
     )
+    annotations: Mapped[list["ArticleAnnotation"]] = relationship(
+        back_populates="article",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         return f"<Article(id={self.id}, title='{self.title[:30]}...', outlet='{self.outlet}')>"
@@ -166,4 +170,49 @@ class Prediction(Base):
         return (
             f"<Prediction(id={self.id}, model='{self.model_name}:{self.model_version}', "
             f"label='{self.label}', score={self.score:.3f})>"
+        )
+
+
+class ArticleAnnotation(Base):
+    """Human ground-truth annotation for an article headline."""
+
+    __tablename__ = "article_annotations"
+    __table_args__ = (
+        UniqueConstraint(
+            "article_id",
+            "annotator_id",
+            name="uq_article_annotator",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    article_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("articles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    annotator_id: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    label: Mapped[str] = mapped_column(
+        String(20), nullable=False, index=True
+    )  # positive, neutral, negative, skip
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    article: Mapped["Article"] = relationship(back_populates="annotations")
+
+    def __repr__(self) -> str:
+        return (
+            f"<ArticleAnnotation(id={self.id}, article_id={self.article_id}, "
+            f"annotator='{self.annotator_id}', label='{self.label}')>"
         )

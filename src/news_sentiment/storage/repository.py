@@ -1,12 +1,19 @@
 """Repository for database CRUD operations, deduplication tracking, and audit logging."""
 
+import random
 from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from news_sentiment.storage.dedup import normalize_title, normalize_url
-from news_sentiment.storage.models import Article, ArticleDuplicate, IngestionRun, Topic
+from news_sentiment.storage.models import (
+    Article,
+    ArticleAnnotation,
+    ArticleDuplicate,
+    IngestionRun,
+    Topic,
+)
 
 
 class TopicRepository:
@@ -152,3 +159,120 @@ class IngestionRunRepository:
             run.status = status
             session.flush()
         return run
+
+
+class AnnotationRepository:
+    """Operations on ground-truth human annotations."""
+
+    @staticmethod
+    def save_annotation(
+        session: Session,
+        article_id: int,
+        annotator_id: str,
+        label: str,
+        notes: str | None = None,
+    ) -> ArticleAnnotation:
+        """Create or update a human annotation for an article."""
+        existing = session.scalar(
+            select(ArticleAnnotation).where(
+                (ArticleAnnotation.article_id == article_id)
+                & (ArticleAnnotation.annotator_id == annotator_id)
+            )
+        )
+        if existing:
+            existing.label = label
+            existing.notes = notes
+            existing.updated_at = datetime.now(UTC)
+            session.flush()
+            return existing
+
+        annotation = ArticleAnnotation(
+            article_id=article_id,
+            annotator_id=annotator_id,
+            label=label,
+            notes=notes,
+        )
+        session.add(annotation)
+        session.flush()
+        return annotation
+
+    @staticmethod
+    def get_annotations(
+        session: Session,
+        annotator_id: str | None = None,
+        exclude_skipped: bool = False,
+    ) -> list[ArticleAnnotation]:
+        """Fetch annotations, optionally filtered by annotator."""
+        stmt = select(ArticleAnnotation).order_by(ArticleAnnotation.id.asc())
+        if annotator_id:
+            stmt = stmt.where(ArticleAnnotation.annotator_id == annotator_id)
+        if exclude_skipped:
+            stmt = stmt.where(ArticleAnnotation.label != "skip")
+        return list(session.scalars(stmt).all())
+
+    @staticmethod
+    def get_stratified_sample(
+        session: Session,
+        annotator_id: str,
+        sample_size: int = 300,
+        seed: int = 42,
+    ) -> list[Article]:
+        """Sample unannotated articles stratified across topics and news providers."""
+        annotated_subq = (
+            select(ArticleAnnotation.article_id)
+            .where(ArticleAnnotation.annotator_id == annotator_id)
+            .scalar_subquery()
+        )
+
+        unannotated = list(
+            session.scalars(
+                select(Article).where(Article.id.not_in(annotated_subq)).order_by(Article.id.asc())
+            ).all()
+        )
+
+        if len(unannotated) <= sample_size:
+            return unannotated
+
+        # Group by stratum: (topic, provider)
+        strata: dict[tuple[str, str], list[Article]] = {}
+        for art in unannotated:
+            key = (art.topic, art.provider)
+            strata.setdefault(key, []).append(art)
+
+        # Shuffle each stratum with fixed seed
+        rng = random.Random(seed)
+        for items in strata.values():
+            rng.shuffle(items)
+
+        # Round-robin sampling across strata until sample_size is reached
+        sampled: list[Article] = []
+        strata_lists = list(strata.values())
+        strata_lists.sort(key=lambda s: (s[0].topic, s[0].provider) if s else ("", ""))
+
+        while len(sampled) < sample_size and any(strata_lists):
+            for items in strata_lists:
+                if items and len(sampled) < sample_size:
+                    sampled.append(items.pop(0))
+
+        return sampled
+
+    @staticmethod
+    def get_overlapping_annotations(
+        session: Session,
+        annotator_1: str,
+        annotator_2: str,
+        exclude_skipped: bool = True,
+    ) -> list[tuple[ArticleAnnotation, ArticleAnnotation]]:
+        """Find paired annotations across two annotators on the exact same articles."""
+        stmt_1 = select(ArticleAnnotation).where(ArticleAnnotation.annotator_id == annotator_1)
+        if exclude_skipped:
+            stmt_1 = stmt_1.where(ArticleAnnotation.label != "skip")
+        annos_1 = {a.article_id: a for a in session.scalars(stmt_1).all()}
+
+        stmt_2 = select(ArticleAnnotation).where(ArticleAnnotation.annotator_id == annotator_2)
+        if exclude_skipped:
+            stmt_2 = stmt_2.where(ArticleAnnotation.label != "skip")
+        annos_2 = {a.article_id: a for a in session.scalars(stmt_2).all()}
+
+        common_ids = sorted(set(annos_1.keys()) & set(annos_2.keys()))
+        return [(annos_1[cid], annos_2[cid]) for cid in common_ids]

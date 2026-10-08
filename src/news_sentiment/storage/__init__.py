@@ -9,6 +9,7 @@ from news_sentiment.storage.database import (
 from news_sentiment.storage.dedup import normalize_title, normalize_url
 from news_sentiment.storage.models import (
     Article,
+    ArticleAnnotation,
     ArticleDuplicate,
     Base,
     IngestionRun,
@@ -16,13 +17,16 @@ from news_sentiment.storage.models import (
     Topic,
 )
 from news_sentiment.storage.repository import (
+    AnnotationRepository,
     ArticleRepository,
     IngestionRunRepository,
     TopicRepository,
 )
 
 __all__ = [
+    "AnnotationRepository",
     "Article",
+    "ArticleAnnotation",
     "ArticleDuplicate",
     "ArticleRepository",
     "Base",

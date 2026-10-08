@@ -1,0 +1,300 @@
+{"id": 1, "text": "Wall Street opens sharply higher on cooler inflation print", "label": "positive", "topic": "markets", "outlet": "Reuters"}
+{"id": 2, "text": "S&P 500 logs biggest weekly advance in six months after tech earnings", "label": "positive", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 3, "text": "Global equities rally as central banks signal potential pause in rate hikes", "label": "positive", "topic": "markets", "outlet": "Financial Times"}
+{"id": 4, "text": "Treasury yields slide to five-month low following labor market cooldown", "label": "positive", "topic": "markets", "outlet": "CNBC"}
+{"id": 5, "text": "European stock indexes finish session with broad-based gains across sectors", "label": "positive", "topic": "markets", "outlet": "Reuters"}
+{"id": 6, "text": "Corporate profit margins expand unexpectedly in third quarter earnings cycle", "label": "positive", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 7, "text": "Consumer confidence index rebounds to highest reading since mid-2021", "label": "positive", "topic": "markets", "outlet": "AP"}
+{"id": 8, "text": "Dow Jones Industrial Average climbs 400 points led by industrial sector surge", "label": "positive", "topic": "markets", "outlet": "Wall Street Journal"}
+{"id": 9, "text": "Small-cap Russell 2000 index outperforms broader market with 2.8% rally", "label": "positive", "topic": "markets", "outlet": "MarketWatch"}
+{"id": 10, "text": "Semiconductor equipment orders increase 18% month-over-month on AI demand", "label": "positive", "topic": "markets", "outlet": "Reuters"}
+{"id": 11, "text": "Federal Reserve convenes for two-day monetary policy meeting in Washington", "label": "neutral", "topic": "markets", "outlet": "Reuters"}
+{"id": 12, "text": "Treasury department to auction $42 billion in 10-year benchmark notes", "label": "neutral", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 13, "text": "Bureau of Labor Statistics schedules monthly employment situation report for Friday", "label": "neutral", "topic": "markets", "outlet": "AP"}
+{"id": 14, "text": "European Central Bank leaves benchmark refinancing rate unchanged at 4.00%", "label": "neutral", "topic": "markets", "outlet": "Financial Times"}
+{"id": 15, "text": "Bank of Japan maintains current yield curve control framework parameters", "label": "neutral", "topic": "markets", "outlet": "Nikkei"}
+{"id": 16, "text": "Commerce Department publishes advance estimate of second quarter gross domestic product", "label": "neutral", "topic": "markets", "outlet": "Reuters"}
+{"id": 17, "text": "Securities and Exchange Commission issues proposed disclosure rule for private funds", "label": "neutral", "topic": "markets", "outlet": "Wall Street Journal"}
+{"id": 18, "text": "CFTC releases weekly commitments of traders report covering futures positioning", "label": "neutral", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 19, "text": "OPEC+ ministerial monitoring committee concludes virtual consultation session", "label": "neutral", "topic": "markets", "outlet": "Reuters"}
+{"id": 20, "text": "Federal Reserve Bank of New York releases quarterly household debt survey", "label": "neutral", "topic": "markets", "outlet": "New York Times"}
+{"id": 21, "text": "Brent crude futures settle flat at $82.40 per barrel following inventory data", "label": "neutral", "topic": "markets", "outlet": "Reuters"}
+{"id": 22, "text": "Sterling trades in narrow range against the US dollar ahead of inflation data", "label": "neutral", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 23, "text": "Federal Open Market Committee releases minutes from prior policy gathering", "label": "neutral", "topic": "markets", "outlet": "AP"}
+{"id": 24, "text": "Index provider MSCI conducts quarterly equity universe rebalancing review", "label": "neutral", "topic": "markets", "outlet": "Financial Times"}
+{"id": 25, "text": "Investment bank publishes annual global macroeconomic outlook for institutional clients", "label": "neutral", "topic": "markets", "outlet": "Reuters"}
+{"id": 26, "text": "Global markets tumble as regional banking concerns rekindle liquidity fears", "label": "negative", "topic": "markets", "outlet": "Reuters"}
+{"id": 27, "text": "Tech stocks plunge in broad selloff triggered by surging bond yields", "label": "negative", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 28, "text": "Credit rating agency downgrades sovereign debt outlook citing fiscal deficit", "label": "negative", "topic": "markets", "outlet": "Financial Times"}
+{"id": 29, "text": "Manufacturing PMI contracts for eighth consecutive month amid order slumps", "label": "negative", "topic": "markets", "outlet": "CNBC"}
+{"id": 30, "text": "Commercial real estate delinquency rate hits highest level in ten years", "label": "negative", "topic": "markets", "outlet": "Wall Street Journal"}
+{"id": 31, "text": "Oil prices plunge 5% as global recession anxiety dampens fuel consumption forecasts", "label": "negative", "topic": "markets", "outlet": "Reuters"}
+{"id": 32, "text": "Retail trading platform warns of substantial drop in user engagement and revenues", "label": "negative", "topic": "markets", "outlet": "MarketWatch"}
+{"id": 33, "text": "Corporate bankruptcies jump 32% year-over-year as borrowing costs pinch firms", "label": "negative", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 34, "text": "Automaker shares sink after lowering annual free cash flow guidance", "label": "negative", "topic": "markets", "outlet": "Reuters"}
+{"id": 35, "text": "Yield curve inversion deepens to minus 108 basis points signalling recession risk", "label": "negative", "topic": "markets", "outlet": "Financial Times"}
+{"id": 36, "text": "Economy avoids anticipated recession in third quarter as domestic consumption holds", "label": "positive", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 37, "text": "Retailer raises full-year profit outlook following strong back-to-school shopping", "label": "positive", "topic": "markets", "outlet": "Reuters"}
+{"id": 38, "text": "Consumer price index increases 0.2% month-over-month matching median consensus", "label": "neutral", "topic": "markets", "outlet": "AP"}
+{"id": 39, "text": "Core PPI tracks in line with economist estimates at 2.4% annualized rate", "label": "neutral", "topic": "markets", "outlet": "Reuters"}
+{"id": 40, "text": "Export-import bank approves $800 million credit facility for domestic exporters", "label": "positive", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 41, "text": "Major investment bank to cut 2,500 jobs across global investment banking division", "label": "negative", "topic": "markets", "outlet": "Reuters"}
+{"id": 42, "text": "Automotive supplier slashes capital expenditure budget after OEM contract cancellations", "label": "negative", "topic": "markets", "outlet": "Wall Street Journal"}
+{"id": 43, "text": "Mortgage applications drop to 28-year low as lending rates exceed 7.5%", "label": "negative", "topic": "markets", "outlet": "CNBC"}
+{"id": 44, "text": "Central bank governor warns inflation fight is far from over despite recent easing", "label": "negative", "topic": "markets", "outlet": "Financial Times"}
+{"id": 45, "text": "Tech conglomerate beats revenue forecasts but warns of decelerating enterprise cloud bookings", "label": "negative", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 46, "text": "Steel producer reports steep profit decline amid weak overseas construction demand", "label": "negative", "topic": "markets", "outlet": "Reuters"}
+{"id": 47, "text": "Commercial paper issuance volumes shrink amid corporate borrowing hesitation", "label": "negative", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 48, "text": "Venture capital fundraising in fintech plummets 45% in first half of the year", "label": "negative", "topic": "markets", "outlet": "Financial Times"}
+{"id": 49, "text": "Logistics bellwether warns of persistent freight recession throughout upcoming quarters", "label": "negative", "topic": "markets", "outlet": "Wall Street Journal"}
+{"id": 50, "text": "Airline trims quarterly margin guidance citing elevated jet fuel procurement costs", "label": "negative", "topic": "markets", "outlet": "CNBC"}
+{"id": 51, "text": "Currency volatility index reaches lowest level in over eighteen months", "label": "positive", "topic": "markets", "outlet": "Reuters"}
+{"id": 52, "text": "Biotech startup secures $120 million Series B funding round for genomic therapies", "label": "positive", "topic": "markets", "outlet": "TechCrunch"}
+{"id": 53, "text": "Retail giant expands dividend payout by 7% following record grocery segment sales", "label": "positive", "topic": "markets", "outlet": "MarketWatch"}
+{"id": 54, "text": "International Monetary Fund holds annual consultative meetings in Marrakesh", "label": "neutral", "topic": "markets", "outlet": "Reuters"}
+{"id": 55, "text": "Department of Transportation awards infrastructure modernization grants to 15 ports", "label": "positive", "topic": "markets", "outlet": "AP"}
+{"id": 56, "text": "Regional lender stock halts trading after sharp intraday volatility and deposit concerns", "label": "negative", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 57, "text": "Pension fund allocation to alternative assets increases to 22% of total portfolio", "label": "neutral", "topic": "markets", "outlet": "Financial Times"}
+{"id": 58, "text": "Mutual fund cash reserves reach conservative peak as fund managers hold dry powder", "label": "neutral", "topic": "markets", "outlet": "Reuters"}
+{"id": 59, "text": "Insurance syndicate raises catastrophe reinsurance rates by 25% following hurricanes", "label": "negative", "topic": "markets", "outlet": "Bloomberg"}
+{"id": 60, "text": "Commodity trading desk generates record annual trading gains across energy contracts", "label": "positive", "topic": "markets", "outlet": "Reuters"}
+{"id": 61, "text": "Open-source AI community releases high-efficiency foundation model outperforming proprietary benchmarks", "label": "positive", "topic": "tech", "outlet": "TechCrunch"}
+{"id": 62, "text": "Cloud infrastructure provider reports 42% revenue acceleration powered by generative AI demand", "label": "positive", "topic": "tech", "outlet": "Bloomberg"}
+{"id": 63, "text": "Cybersecurity firm successfully mitigates largest recorded volumetric DDoS attack in history", "label": "positive", "topic": "tech", "outlet": "Ars Technica"}
+{"id": 64, "text": "Semiconductor pioneer unveils 2-nanometer architecture achieving 30% performance boost", "label": "positive", "topic": "tech", "outlet": "Reuters"}
+{"id": 65, "text": "Developer platform surpasses 100 million registered programmers globally", "label": "positive", "topic": "tech", "outlet": "VentureBeat"}
+{"id": 66, "text": "Quantum computing laboratory demonstrates fault-tolerant logical qubit breakthrough", "label": "positive", "topic": "tech", "outlet": "Wired"}
+{"id": 67, "text": "Enterprise software provider acquires AI data pipeline startup for $650 million", "label": "positive", "topic": "tech", "outlet": "Wall Street Journal"}
+{"id": 68, "text": "Next-generation battery developer demonstrates 80% charge in 10 minutes with solid-state cells", "label": "positive", "topic": "tech", "outlet": "The Verge"}
+{"id": 69, "text": "Open-source operating system distribution announces new long-term support release", "label": "positive", "topic": "tech", "outlet": "ZDNet"}
+{"id": 70, "text": "Robotics startup deploys autonomous warehouse fleet cutting fulfillment errors by 90%", "label": "positive", "topic": "tech", "outlet": "Forbes"}
+{"id": 71, "text": "European Commission publishes official draft guidelines for AI Act regulatory compliance", "label": "neutral", "topic": "tech", "outlet": "Reuters"}
+{"id": 72, "text": "Standards body ratifies Wi-Fi 7 technical specification for consumer hardware", "label": "neutral", "topic": "tech", "outlet": "The Verge"}
+{"id": 73, "text": "Tech consortium hosts annual developer conference in San Francisco", "label": "neutral", "topic": "tech", "outlet": "CNET"}
+{"id": 74, "text": "Smartphone manufacturer schedules annual flagship hardware launch event for September 12", "label": "neutral", "topic": "tech", "outlet": "Bloomberg"}
+{"id": 75, "text": "Telecommunications authority opens auction for 6 GHz wireless spectrum licenses", "label": "neutral", "topic": "tech", "outlet": "Reuters"}
+{"id": 76, "text": "Computer science journal publishes comparative benchmark of transformer context window architectures", "label": "neutral", "topic": "tech", "outlet": "MIT Tech Review"}
+{"id": 77, "text": "Tech industry association submits joint comments to federal privacy rulemaking commission", "label": "neutral", "topic": "tech", "outlet": "Politico"}
+{"id": 78, "text": "Cloud platform updates terms of service regarding automated synthetic telemetry processing", "label": "neutral", "topic": "tech", "outlet": "Ars Technica"}
+{"id": 79, "text": "Semiconductor trade group releases monthly global microchip billings data", "label": "neutral", "topic": "tech", "outlet": "Reuters"}
+{"id": 80, "text": "Software foundation transitions governance model to multi-stakeholder foundation board", "label": "neutral", "topic": "tech", "outlet": "ZDNet"}
+{"id": 81, "text": "Major social network suffers 6-hour worldwide outage due to core BGP routing error", "label": "negative", "topic": "tech", "outlet": "Reuters"}
+{"id": 82, "text": "Ransomware gang infiltrates municipal healthcare network, exfiltrating patient records", "label": "negative", "topic": "tech", "outlet": "BleepingComputer"}
+{"id": 83, "text": "Antitrust regulators file landmark monopolization lawsuit against search behemoth", "label": "negative", "topic": "tech", "outlet": "New York Times"}
+{"id": 84, "text": "Tech firm eliminates 3,800 engineering positions in ongoing cost reduction initiative", "label": "negative", "topic": "tech", "outlet": "Bloomberg"}
+{"id": 85, "text": "Hardware maker issues urgent security patch for zero-day flaw actively exploited in the wild", "label": "negative", "topic": "tech", "outlet": "Wired"}
+{"id": 86, "text": "Data protection authority levies record \u20ac400 million fine for child privacy violations", "label": "negative", "topic": "tech", "outlet": "The Guardian"}
+{"id": 87, "text": "Consumer electronics retailer reports 15% drop in PC and tablet demand", "label": "negative", "topic": "tech", "outlet": "Wall Street Journal"}
+{"id": 88, "text": "Electric vehicle startup warns of substantial doubt regarding ability to continue as going concern", "label": "negative", "topic": "tech", "outlet": "Reuters"}
+{"id": 89, "text": "Popular cryptocurrency exchange loses $45 million in sophisticated smart contract exploit", "label": "negative", "topic": "tech", "outlet": "CoinDesk"}
+{"id": 90, "text": "Venture capital funding for consumer internet apps drops to seven-year low", "label": "negative", "topic": "tech", "outlet": "TechCrunch"}
+{"id": 91, "text": "Enterprise security platform detects state-sponsored espionage campaign targeting telecom routers", "label": "negative", "topic": "tech", "outlet": "Ars Technica"}
+{"id": 92, "text": "Autonomous vehicle program pauses commercial robotaxi testing following pedestrian collision probe", "label": "negative", "topic": "tech", "outlet": "Reuters"}
+{"id": 93, "text": "Tech giant denies allegations of anticompetitive exclusive dealing agreements in mobile app store", "label": "negative", "topic": "tech", "outlet": "Bloomberg"}
+{"id": 94, "text": "Chip design firm overcomes yield hurdles to ship first commercial batch of AI accelerators", "label": "positive", "topic": "tech", "outlet": "Reuters"}
+{"id": 95, "text": "Mobile operating system update introduces granular per-app permission dashboard", "label": "neutral", "topic": "tech", "outlet": "The Verge"}
+{"id": 96, "text": "International cybersecurity agency issues alert on legacy VPN appliance vulnerabilities", "label": "negative", "topic": "tech", "outlet": "BleepingComputer"}
+{"id": 97, "text": "Consumer technology exposition showcases prototype transparent OLED display monitors", "label": "neutral", "topic": "tech", "outlet": "Engadget"}
+{"id": 98, "text": "Satellite internet constellation deploys 22 additional low-earth orbit communications nodes", "label": "neutral", "topic": "tech", "outlet": "SpaceNews"}
+{"id": 99, "text": "Tech company introduces passwordless passkey authentication across all customer accounts", "label": "positive", "topic": "tech", "outlet": "ZDNet"}
+{"id": 100, "text": "Open-source package repository revokes compromised developer credentials after token leak", "label": "neutral", "topic": "tech", "outlet": "The Register"}
+{"id": 101, "text": "Smartphone manufacturer recalls 15,000 power adapters due to potential electrical shock risk", "label": "negative", "topic": "tech", "outlet": "Reuters"}
+{"id": 102, "text": "Telecom operator completes nationwide 5G standalone core network deployment", "label": "positive", "topic": "tech", "outlet": "FierceWireless"}
+{"id": 103, "text": "Academic researchers publish novel memory-efficient attention mechanism for sparse LLMs", "label": "neutral", "topic": "tech", "outlet": "MIT Tech Review"}
+{"id": 104, "text": "Tech CEO defends remote work policy reversal despite employee petition and walkout threats", "label": "negative", "topic": "tech", "outlet": "Wall Street Journal"}
+{"id": 105, "text": "Streaming service cracks down on password sharing, prompting initial surge in cancellations", "label": "negative", "topic": "tech", "outlet": "Variety"}
+{"id": 106, "text": "AI safety research institute established with $50 million non-profit endowment", "label": "positive", "topic": "tech", "outlet": "BBC"}
+{"id": 107, "text": "Cloud provider suffers regional storage outage affecting dozens of enterprise customers", "label": "negative", "topic": "tech", "outlet": "StatusPage"}
+{"id": 108, "text": "Patent office upholds validity of rival company semiconductor packaging claims", "label": "neutral", "topic": "tech", "outlet": "Reuters"}
+{"id": 109, "text": "Tech giant challenges European Union digital markets designation in Luxembourg court", "label": "neutral", "topic": "tech", "outlet": "Bloomberg"}
+{"id": 110, "text": "Fintech platform integrates instant peer-to-peer cross-border remittance rail", "label": "positive", "topic": "tech", "outlet": "TechCrunch"}
+{"id": 111, "text": "Enterprise collaboration app rolls out automated meeting summary transcription feature", "label": "neutral", "topic": "tech", "outlet": "ZDNet"}
+{"id": 112, "text": "Cybersecurity audit discovers hardcoded administrative credentials in commercial IoT cameras", "label": "negative", "topic": "tech", "outlet": "Wired"}
+{"id": 113, "text": "Digital rights organization files legal brief opposing mandatory client-side message scanning", "label": "neutral", "topic": "tech", "outlet": "Ars Technica"}
+{"id": 114, "text": "Semiconductor foundry breaks ground on $12 billion manufacturing complex in Dresden", "label": "positive", "topic": "tech", "outlet": "Reuters"}
+{"id": 115, "text": "Autonomous delivery robot fleet surpasses one million commercial restaurant deliveries", "label": "positive", "topic": "tech", "outlet": "VentureBeat"}
+{"id": 116, "text": "Tech industry layoffs surpass 240,000 workers in calendar year, according to tracker data", "label": "negative", "topic": "tech", "outlet": "CNBC"}
+{"id": 117, "text": "Software vendor settles software piracy lawsuit with enterprise client for undisclosed sum", "label": "neutral", "topic": "tech", "outlet": "The Register"}
+{"id": 118, "text": "Cryptographic researchers discover theoretical vulnerability in legacy hash algorithm", "label": "neutral", "topic": "tech", "outlet": "BleepingComputer"}
+{"id": 119, "text": "Health tech developer receives FDA clearance for prescription digital therapeutic app", "label": "positive", "topic": "tech", "outlet": "MobiHealthNews"}
+{"id": 120, "text": "National telecommunications regulator hosts hearing on algorithmic pricing in broadband", "label": "neutral", "topic": "tech", "outlet": "Reuters"}
+{"id": 121, "text": "Global renewable energy capacity additions surge 50% to record high in 2023", "label": "positive", "topic": "climate", "outlet": "IEA"}
+{"id": 122, "text": "Offshore wind farm with 1.2 gigawatt capacity commences commercial electricity transmission", "label": "positive", "topic": "climate", "outlet": "Reuters"}
+{"id": 123, "text": "Battery storage deployment on electrical grid triples, displacing peaker gas plants", "label": "positive", "topic": "climate", "outlet": "BloombergNEF"}
+{"id": 124, "text": "International climate summit produces landmark agreement to transition away from fossil fuels", "label": "positive", "topic": "climate", "outlet": "UN News"}
+{"id": 125, "text": "Solar panel installation costs drop to historic low, accelerating distributed rooftop adoption", "label": "positive", "topic": "climate", "outlet": "Canary Media"}
+{"id": 126, "text": "Automakers commit $50 billion to domestic EV manufacturing and supply chain localization", "label": "positive", "topic": "climate", "outlet": "Wall Street Journal"}
+{"id": 127, "text": "Reforestation program restores 500,000 hectares of degraded tropical watershed in Costa Rica", "label": "positive", "topic": "climate", "outlet": "Mongabay"}
+{"id": 128, "text": "Green hydrogen production facility begins commercial operation supplying zero-emission steel plant", "label": "positive", "topic": "climate", "outlet": "Reuters"}
+{"id": 129, "text": "Cities around the globe expand dedicated bus rapid transit corridors to lower vehicular emissions", "label": "positive", "topic": "climate", "outlet": "C40 Cities"}
+{"id": 130, "text": "Direct air capture carbon removal facility secures multi-year commercial offtake contracts", "label": "positive", "topic": "climate", "outlet": "TechCrunch"}
+{"id": 131, "text": "United Nations climate change secretariat publishes annual global greenhouse gas inventory synthesis", "label": "neutral", "topic": "climate", "outlet": "UNFCCC"}
+{"id": 132, "text": "World Meteorological Organization issues seasonal El Ni\u00f1o weather pattern advisory", "label": "neutral", "topic": "climate", "outlet": "WMO"}
+{"id": 133, "text": "Energy Information Administration releases monthly electric power generation statistics", "label": "neutral", "topic": "climate", "outlet": "EIA"}
+{"id": 134, "text": "Delegates gather in Bonn for mid-year technical discussions on climate adaptation metrics", "label": "neutral", "topic": "climate", "outlet": "Reuters"}
+{"id": 135, "text": "National oceanographic agency records atmospheric carbon dioxide concentration at Mauna Loa", "label": "neutral", "topic": "climate", "outlet": "NOAA"}
+{"id": 136, "text": "Intergovernmental Panel on Climate Change convenes plenary session to finalize working group report", "label": "neutral", "topic": "climate", "outlet": "IPCC"}
+{"id": 137, "text": "Environmental protection agency holds public listening session on proposed particulate matter rules", "label": "neutral", "topic": "climate", "outlet": "EPA"}
+{"id": 138, "text": "Electric grid operator publishes annual long-term summer resource adequacy assessment", "label": "neutral", "topic": "climate", "outlet": "CAISO"}
+{"id": 139, "text": "Geological survey releases comprehensive assessment of domestic critical mineral deposits", "label": "neutral", "topic": "climate", "outlet": "USGS"}
+{"id": 140, "text": "Nuclear regulatory commission accepts design certification application for small modular reactor", "label": "neutral", "topic": "climate", "outlet": "World Nuclear News"}
+{"id": 141, "text": "Catastrophic flooding submerges one-third of country, displacing over 30 million residents", "label": "negative", "topic": "climate", "outlet": "BBC"}
+{"id": 142, "text": "Prolonged severe drought threatens agricultural yields and drinking water reservoirs across region", "label": "negative", "topic": "climate", "outlet": "Reuters"}
+{"id": 143, "text": "Wildfire consumes 150,000 hectares of boreal forest, forcing evacuation of remote communities", "label": "negative", "topic": "climate", "outlet": "CBC"}
+{"id": 144, "text": "Antarctic winter sea ice extent reaches lowest level since satellite observations began", "label": "negative", "topic": "climate", "outlet": "Nature"}
+{"id": 145, "text": "Extreme marine heatwave bleaches 90% of coral reefs across northern marine sanctuary", "label": "negative", "topic": "climate", "outlet": "Guardian"}
+{"id": 146, "text": "Category 5 hurricane makes landfall, causing widespread infrastructure devastation and fatalities", "label": "negative", "topic": "climate", "outlet": "AP"}
+{"id": 147, "text": "Scientists warn Amazon rainforest approaching critical tipping point toward savannah transition", "label": "negative", "topic": "climate", "outlet": "Science"}
+{"id": 148, "text": "Severe heatwave shatters temperature records, causing hundreds of heat-related hospitalizations", "label": "negative", "topic": "climate", "outlet": "New York Times"}
+{"id": 149, "text": "Glacial lake outburst flood destroys hydroelectric dam and downstream bridges in Himalayas", "label": "negative", "topic": "climate", "outlet": "Reuters"}
+{"id": 150, "text": "Air quality index reaches hazardous levels across metropolitan basin due to stagnant agricultural smoke", "label": "negative", "topic": "climate", "outlet": "Indian Express"}
+{"id": 151, "text": "Coastal municipality completes sea wall reinforcement project ahead of high-tide season", "label": "positive", "topic": "climate", "outlet": "Local News"}
+{"id": 152, "text": "Hydroelectric reservoir levels drop to 28% of capacity following dry monsoon season", "label": "negative", "topic": "climate", "outlet": "Bloomberg"}
+{"id": 153, "text": "European Union introduces carbon border adjustment mechanism import reporting requirements", "label": "neutral", "topic": "climate", "outlet": "Reuters"}
+{"id": 154, "text": "Thermal coal production reaches record high in major emerging economy despite transition goals", "label": "negative", "topic": "climate", "outlet": "Financial Times"}
+{"id": 155, "text": "Geothermal energy exploratory drilling program confirms viable high-temperature steam reservoir", "label": "positive", "topic": "climate", "outlet": "Canary Media"}
+{"id": 156, "text": "International energy agency holds global critical minerals summit in Paris", "label": "neutral", "topic": "climate", "outlet": "IEA"}
+{"id": 157, "text": "Tornado outbreak damages hundreds of structures across midwestern counties; emergency teams respond", "label": "negative", "topic": "climate", "outlet": "AP"}
+{"id": 158, "text": "Electric vehicle market share reaches 22% of all new car registrations in Nordic country", "label": "positive", "topic": "climate", "outlet": "CleanTechnica"}
+{"id": 159, "text": "Insurance firms pull out of coastal property markets citing escalating wildfire and flood risks", "label": "negative", "topic": "climate", "outlet": "Wall Street Journal"}
+{"id": 160, "text": "Agricultural research institute develops drought-resilient sorghum variety for arid regions", "label": "positive", "topic": "climate", "outlet": "CGIAR"}
+{"id": 161, "text": "Methane emissions from global oil and gas operations remain stubbornly elevated, satellite survey finds", "label": "negative", "topic": "climate", "outlet": "Nature"}
+{"id": 162, "text": "Utility company announces planned retirement of remaining two coal-fired generating units by 2028", "label": "positive", "topic": "climate", "outlet": "Reuters"}
+{"id": 163, "text": "River transport along major commercial waterway halted due to unprecedented seasonal low water levels", "label": "negative", "topic": "climate", "outlet": "Bloomberg"}
+{"id": 164, "text": "Environmental tribunal orders oil company to pay damages for historic pipeline spills in delta", "label": "neutral", "topic": "climate", "outlet": "The Guardian"}
+{"id": 165, "text": "Municipal water utility commissions advanced seawater reverse-osmosis desalination plant", "label": "positive", "topic": "climate", "outlet": "Water World"}
+{"id": 166, "text": "Subsidies for domestic heat pump installations increase 35% under revised clean heat program", "label": "positive", "topic": "climate", "outlet": "BBC"}
+{"id": 167, "text": "Arctic shipping route sees record transit volumes as northern sea ice coverage contracts", "label": "neutral", "topic": "climate", "outlet": "Maritime Executive"}
+{"id": 168, "text": "Industrial chemical spill taints municipal watershed, prompting precautionary boil-water order", "label": "negative", "topic": "climate", "outlet": "AP"}
+{"id": 169, "text": "Green climate fund approves $1 billion in grants for developing nation adaptation projects", "label": "positive", "topic": "climate", "outlet": "UN News"}
+{"id": 170, "text": "Forestry service implements controlled prescribed burns across 12,000 acres of national forest", "label": "neutral", "topic": "climate", "outlet": "USFS"}
+{"id": 171, "text": "Heavy rainfall triggers mudslides blocking trans-Andean railway artery", "label": "negative", "topic": "climate", "outlet": "Reuters"}
+{"id": 172, "text": "Permafrost thaw causes structural buckling in Arctic transportation infrastructure and buildings", "label": "negative", "topic": "climate", "outlet": "Polar Research"}
+{"id": 173, "text": "Community solar cooperative generates first clean kilowatt-hour for low-income subscribers", "label": "positive", "topic": "climate", "outlet": "Canary Media"}
+{"id": 174, "text": "Fisheries council reduces commercial cod harvesting quota by 40% to preserve breeding stocks", "label": "negative", "topic": "climate", "outlet": "Undercurrent News"}
+{"id": 175, "text": "Renewable energy procurement by corporate buyers surpasses 40 gigawatts globally in 2023", "label": "positive", "topic": "climate", "outlet": "BloombergNEF"}
+{"id": 176, "text": "Environmental group files legal challenge against offshore petroleum exploration licensing round", "label": "neutral", "topic": "climate", "outlet": "Reuters"}
+{"id": 177, "text": "National weather service introduces new wet-bulb temperature warning system for extreme heat", "label": "neutral", "topic": "climate", "outlet": "NOAA"}
+{"id": 178, "text": "Agricultural yields rebound 12% in cereal grain production after beneficial seasonal spring rain", "label": "positive", "topic": "climate", "outlet": "FAO"}
+{"id": 179, "text": "Severe thunderstorm leaves 250,000 electrical customers without power across tri-state area", "label": "negative", "topic": "climate", "outlet": "AP"}
+{"id": 180, "text": "Carbon accounting standards board issues updated guidance on Scope 3 supply chain reporting", "label": "neutral", "topic": "climate", "outlet": "ESG Investor"}
+{"id": 181, "text": "Bipartisan congressional coalition reaches agreement on comprehensive federal budget framework", "label": "positive", "topic": "politics", "outlet": "Politico"}
+{"id": 182, "text": "Senate confirms veteran diplomat as ambassador to United Nations in unanimous roll call vote", "label": "positive", "topic": "politics", "outlet": "Washington Post"}
+{"id": 183, "text": "Governor signs landmark legislation expanding early childhood education funding across state", "label": "positive", "topic": "politics", "outlet": "AP"}
+{"id": 184, "text": "Electoral commission successfully conducts orderly parliamentary balloting with record civic turnout", "label": "positive", "topic": "politics", "outlet": "Reuters"}
+{"id": 185, "text": "Cross-party committee passes campaign finance transparency reform bill with broad endorsement", "label": "positive", "topic": "politics", "outlet": "The Hill"}
+{"id": 186, "text": "Supreme court unanimously upholds constitutional protection for public records disclosure access", "label": "positive", "topic": "politics", "outlet": "SCOTUSblog"}
+{"id": 187, "text": "Mayoral administration announces ambitious downtown revitalization initiative and housing grants", "label": "positive", "topic": "politics", "outlet": "Local Daily"}
+{"id": 188, "text": "Legislative leaders agree to extend state debt ceiling through next fiscal biennium without drama", "label": "positive", "topic": "politics", "outlet": "Bloomberg"}
+{"id": 189, "text": "Voters approve municipal bond referendum to construct modern public hospital facilities", "label": "positive", "topic": "politics", "outlet": "AP"}
+{"id": 190, "text": "National anti-corruption commission recovers $140 million in misappropriated public procurement funds", "label": "positive", "topic": "politics", "outlet": "Reuters"}
+{"id": 191, "text": "Parliamentary committee opens formal legislative hearings on healthcare administrative reform", "label": "neutral", "topic": "politics", "outlet": "BBC"}
+{"id": 192, "text": "Secretary of State departs for three-day bilateral diplomatic summit in Tokyo and Seoul", "label": "neutral", "topic": "politics", "outlet": "State Dept"}
+{"id": 193, "text": "Constitutional court hears oral arguments regarding state legislative redistricting map challenge", "label": "neutral", "topic": "politics", "outlet": "Reuters"}
+{"id": 194, "text": "Federal election commission publishes quarterly political action committee fundraising filings", "label": "neutral", "topic": "politics", "outlet": "FEC"}
+{"id": 195, "text": "Prime Minister reshuffles cabinet portfolios, appointing new minister of foreign trade", "label": "neutral", "topic": "politics", "outlet": "The Guardian"}
+{"id": 196, "text": "Census bureau releases decennial state population estimates utilized for legislative apportionment", "label": "neutral", "topic": "politics", "outlet": "Census"}
+{"id": 197, "text": "Department of Justice issues routine inspector general review of agency whistleblower procedures", "label": "neutral", "topic": "politics", "outlet": "DOJ"}
+{"id": 198, "text": "State legislature convenes for annual 60-day regular legislative session in capital", "label": "neutral", "topic": "politics", "outlet": "AP"}
+{"id": 199, "text": "Diplomatic corps hosts annual reception marking anniversary of national constitution adoption", "label": "neutral", "topic": "politics", "outlet": "Washington Post"}
+{"id": 200, "text": "National archives transfers historical presidential administrative records to research repository", "label": "neutral", "topic": "politics", "outlet": "NARA"}
+{"id": 201, "text": "Government shutdown looms as polarized lawmakers fail to reach stopgap funding resolution", "label": "negative", "topic": "politics", "outlet": "Politico"}
+{"id": 202, "text": "Special prosecutor indicts former senior cabinet official on federal bribery and extortion counts", "label": "negative", "topic": "politics", "outlet": "New York Times"}
+{"id": 203, "text": "Partisan deadlock stalls critical foreign aid authorization package in lower legislative chamber", "label": "negative", "topic": "politics", "outlet": "Wall Street Journal"}
+{"id": 204, "text": "Ethics committee finds congresswoman committed serious campaign finance rule violations", "label": "negative", "topic": "politics", "outlet": "The Hill"}
+{"id": 205, "text": "Police clash with anti-tax demonstrators outside parliament, resulting in multiple arrests", "label": "negative", "topic": "politics", "outlet": "Reuters"}
+{"id": 206, "text": "Opposition party boycotts parliamentary debate citing arbitrary procedural rule changes", "label": "negative", "topic": "politics", "outlet": "BBC"}
+{"id": 207, "text": "Auditor general report uncovers widespread procurement waste and questionable contract awards", "label": "negative", "topic": "politics", "outlet": "The Guardian"}
+{"id": 208, "text": "Mayor faces recall petition after municipal budget deficit forces curtailment of public services", "label": "negative", "topic": "politics", "outlet": "AP"}
+{"id": 209, "text": "Supreme court strikes down popular student debt relief program, affecting millions of borrowers", "label": "negative", "topic": "politics", "outlet": "Washington Post"}
+{"id": 210, "text": "Voter intimidation complaints filed in contested regional run-off election, prompting inquiry", "label": "negative", "topic": "politics", "outlet": "Reuters"}
+{"id": 211, "text": "Government and civil service unions reach wage settlement, averting nationwide public transit strike", "label": "positive", "topic": "politics", "outlet": "BBC"}
+{"id": 212, "text": "Electoral tribunal dismisses unsubstantiated allegations of voting machine tampering", "label": "neutral", "topic": "politics", "outlet": "Reuters"}
+{"id": 213, "text": "Legislators debate proposed amendment modifying statutory tax bracket thresholds", "label": "neutral", "topic": "politics", "outlet": "Politico"}
+{"id": 214, "text": "Lawmaker censured by chamber colleagues following disruptive conduct on debate floor", "label": "negative", "topic": "politics", "outlet": "The Hill"}
+{"id": 215, "text": "Public protector initiates formal investigation into municipal infrastructure contract kickbacks", "label": "negative", "topic": "politics", "outlet": "Daily Maverick"}
+{"id": 216, "text": "National assembly ratifies bilateral double taxation avoidance convention with trade partner", "label": "neutral", "topic": "politics", "outlet": "Reuters"}
+{"id": 217, "text": "Judicial panel upholds legality of federal agency rulemaking authority under statutory charter", "label": "neutral", "topic": "politics", "outlet": "National Law Journal"}
+{"id": 218, "text": "Governor exercises veto power on omnibus regulatory deregulation package passed by assembly", "label": "neutral", "topic": "politics", "outlet": "AP"}
+{"id": 219, "text": "Treasury secretary testifies before senate finance committee regarding international tax treaty", "label": "neutral", "topic": "politics", "outlet": "Bloomberg"}
+{"id": 220, "text": "Civic oversight coalition publishes evaluation of legislative transparency and disclosure practices", "label": "neutral", "topic": "politics", "outlet": "Sunlight Foundation"}
+{"id": 221, "text": "Bipartisan task force unveils comprehensive border enforcement and asylum processing compromise", "label": "positive", "topic": "politics", "outlet": "Wall Street Journal"}
+{"id": 222, "text": "City council unanimously approves zoning changes enabling affordable multi-family housing development", "label": "positive", "topic": "politics", "outlet": "Local News"}
+{"id": 223, "text": "Political party chairperson resigns amid internal dissent over election campaign strategy", "label": "negative", "topic": "politics", "outlet": "Politico"}
+{"id": 224, "text": "Federal judge issues preliminary injunction blocking controversial state election law restriction", "label": "neutral", "topic": "politics", "outlet": "Reuters"}
+{"id": 225, "text": "Ministerial delegation participates in international summit on democratic institution resilience", "label": "neutral", "topic": "politics", "outlet": "AP"}
+{"id": 226, "text": "National security advisor holds closed-door briefing for congressional intelligence leaders", "label": "neutral", "topic": "politics", "outlet": "CNN"}
+{"id": 227, "text": "Whistleblower complaint alleges political interference in commercial air safety certification review", "label": "negative", "topic": "politics", "outlet": "Washington Post"}
+{"id": 228, "text": "Civil liberties group files lawsuit challenging warrantless surveillance program authority", "label": "negative", "topic": "politics", "outlet": "Ars Technica"}
+{"id": 229, "text": "Bipartisan majority votes to expel representative following damning congressional ethics report", "label": "negative", "topic": "politics", "outlet": "New York Times"}
+{"id": 230, "text": "Department of Labor issues revised rule clarifying independent contractor versus employee status", "label": "neutral", "topic": "politics", "outlet": "DOL"}
+{"id": 231, "text": "Ombudsman report commends state agency for dramatically reducing disability benefits backlog", "label": "positive", "topic": "politics", "outlet": "AP"}
+{"id": 232, "text": "State assembly passes legislation mandating financial literacy coursework in secondary schools", "label": "positive", "topic": "politics", "outlet": "Local Daily"}
+{"id": 233, "text": "Senate judiciary committee holds confirmation hearing for prospective federal appellate judge", "label": "neutral", "topic": "politics", "outlet": "C-SPAN"}
+{"id": 234, "text": "Diplomatic negotiations resume on bilateral extradition treaty revisions in Geneva", "label": "neutral", "topic": "politics", "outlet": "Reuters"}
+{"id": 235, "text": "Former governor convicted of wire fraud in federal court, facing potential ten-year prison term", "label": "negative", "topic": "politics", "outlet": "Chicago Tribune"}
+{"id": 236, "text": "Electoral commission tests optical ballot scanning software during public pre-election verification", "label": "neutral", "topic": "politics", "outlet": "AP"}
+{"id": 237, "text": "National security council declassifies historical diplomatic records concerning Cold War accord", "label": "neutral", "topic": "politics", "outlet": "NARA"}
+{"id": 238, "text": "Dispute over committee assignment quotas delays formal organization of legislative chamber", "label": "negative", "topic": "politics", "outlet": "The Hill"}
+{"id": 239, "text": "City controller audit verifies balanced municipal financial operations for third consecutive year", "label": "positive", "topic": "politics", "outlet": "Local News"}
+{"id": 240, "text": "State supreme court chief justice delivers annual state of the judiciary address before assembly", "label": "neutral", "topic": "politics", "outlet": "AP"}
+{"id": 241, "text": "Historic ceasefire accord signed by conflicting parties, ending years of armed hostilities", "label": "positive", "topic": "world", "outlet": "Reuters"}
+{"id": 242, "text": "Global health organization declares eradication of wild polio virus strain across final continent", "label": "positive", "topic": "world", "outlet": "WHO"}
+{"id": 243, "text": "International rescue teams safely extricate all twelve youth football players trapped in cave system", "label": "positive", "topic": "world", "outlet": "BBC"}
+{"id": 244, "text": "United Nations peacekeepers oversee peaceful voluntary return of 250,000 displaced refugees", "label": "positive", "topic": "world", "outlet": "UNHCR"}
+{"id": 245, "text": "Astronomers detect unprecedented prebiotic organic molecules in habitable zone exoplanet atmosphere", "label": "positive", "topic": "world", "outlet": "Nature Astronomy"}
+{"id": 246, "text": "Global vaccination campaign prevents estimated five million infant deaths over past decade", "label": "positive", "topic": "world", "outlet": "UNICEF"}
+{"id": 247, "text": "Archaeologists discover intact subterranean classical Roman temple beneath historical center", "label": "positive", "topic": "world", "outlet": "National Geographic"}
+{"id": 248, "text": "Deep-sea marine reserve expansion protects 400,000 square kilometers of biodiversity hotspots", "label": "positive", "topic": "world", "outlet": "Mongabay"}
+{"id": 249, "text": "International food assistance delivery successfully reaches famine-threatened pastoral communities", "label": "positive", "topic": "world", "outlet": "WFP"}
+{"id": 250, "text": "Maritime authorities safely rescue 85 passengers from stranded passenger ferry in heavy seas", "label": "positive", "topic": "world", "outlet": "Reuters"}
+{"id": 251, "text": "United Nations General Assembly opens annual high-level debate with addresses by world leaders", "label": "neutral", "topic": "world", "outlet": "UN News"}
+{"id": 252, "text": "International Court of Justice schedules public hearings regarding maritime delimitation dispute", "label": "neutral", "topic": "world", "outlet": "ICJ"}
+{"id": 253, "text": "Universal postal union convenes quadrennial congress to update cross-border parcel delivery rates", "label": "neutral", "topic": "world", "outlet": "UPU"}
+{"id": 254, "text": "Antarctic scientific research station celebrates winter solstice with traditional scientific exchange", "label": "neutral", "topic": "world", "outlet": "British Antarctic Survey"}
+{"id": 255, "text": "National geographic society announces winners of annual world cartographic competition", "label": "neutral", "topic": "world", "outlet": "National Geographic"}
+{"id": 256, "text": "International atomic energy agency completes routine inspection of civilian nuclear medical facility", "label": "neutral", "topic": "world", "outlet": "IAEA"}
+{"id": 257, "text": "Global seismological network records magnitude 5.8 earthquake deep beneath uninhabited sea trench", "label": "neutral", "topic": "world", "outlet": "USGS"}
+{"id": 258, "text": "World maritime university confers postgraduate degrees upon maritime administration specialists", "label": "neutral", "topic": "world", "outlet": "IMO"}
+{"id": 259, "text": "Archaeological team completes conservation work on ancient mosaic floor in museum complex", "label": "neutral", "topic": "world", "outlet": "Art News"}
+{"id": 260, "text": "International civil aviation organization issues revised guidance for uncrewed aerial vehicle corridors", "label": "neutral", "topic": "world", "outlet": "ICAO"}
+{"id": 261, "text": "Devastating earthquake magnitude 7.8 flattens municipal buildings, killing thousands in sleep", "label": "negative", "topic": "world", "outlet": "AP"}
+{"id": 262, "text": "Armed conflict escalates along disputed frontier zone, resulting in civilian fatalities and shelling", "label": "negative", "topic": "world", "outlet": "Reuters"}
+{"id": 263, "text": "Passenger jetliner crashes on approach in dense fog, with no survivors reported among 132 on board", "label": "negative", "topic": "world", "outlet": "BBC"}
+{"id": 264, "text": "Tropical cyclone destroys coastal fishing villages, leaving hundreds missing amid surging storm waters", "label": "negative", "topic": "world", "outlet": "CNN"}
+{"id": 265, "text": "Armed insurgents raid remote village, abducting dozens of students from boarding academy", "label": "negative", "topic": "world", "outlet": "Al Jazeera"}
+{"id": 266, "text": "Deadly stampede at crowded stadium football championship claims over 120 lives, injuring hundreds", "label": "negative", "topic": "world", "outlet": "The Guardian"}
+{"id": 267, "text": "Explosion at chemical manufacturing warehouse levels industrial park, shattering windows for miles", "label": "negative", "topic": "world", "outlet": "New York Times"}
+{"id": 268, "text": "Cholera epidemic spreads through flood-affected displacement camps lacking clean sanitation", "label": "negative", "topic": "world", "outlet": "Doctors Without Borders"}
+{"id": 269, "text": "Ferry capsizes in turbulent river crossing, leaving dozens feared drowned as search continues", "label": "negative", "topic": "world", "outlet": "Reuters"}
+{"id": 270, "text": "Wildfire sweeps through historical hillside resort town, destroying hundreds of heritage structures", "label": "negative", "topic": "world", "outlet": "AP"}
+{"id": 271, "text": "Humanitarian corridor established allowing evacuation of wounded non-combatants from besieged enclave", "label": "positive", "topic": "world", "outlet": "Red Cross"}
+{"id": 272, "text": "International boundary commission deposits demarcated border maps with United Nations secretariat", "label": "neutral", "topic": "world", "outlet": "UN"}
+{"id": 273, "text": "Scientists successfully culture disease-resistant coral colonies for laboratory reef restoration", "label": "positive", "topic": "world", "outlet": "Science Daily"}
+{"id": 274, "text": "Museum returns looted historical bronze sculptures to national cultural heritage ministry", "label": "positive", "topic": "world", "outlet": "Art Newspaper"}
+{"id": 275, "text": "Global airline passenger traffic recovers to 98% of pre-pandemic baseline figures", "label": "positive", "topic": "world", "outlet": "IATA"}
+{"id": 276, "text": "Volcanic eruption sends ash plume 15,000 feet into atmosphere, prompting aviation warning diversion", "label": "negative", "topic": "world", "outlet": "Volcano Discovery"}
+{"id": 277, "text": "Cargo freighter runs aground in commercial canal channel, temporarily obstructing transit traffic", "label": "negative", "topic": "world", "outlet": "Lloyd's List"}
+{"id": 278, "text": "Human rights commission releases report documenting unlawful detentions during civil protests", "label": "negative", "topic": "world", "outlet": "Amnesty"}
+{"id": 279, "text": "Maritime patrol intercepts illicit narcotics shipment carrying twelve tons of cocaine on high seas", "label": "positive", "topic": "world", "outlet": "Coast Guard"}
+{"id": 280, "text": "International astronomy consortium inaugurates next-generation optical telescope in Atacama desert", "label": "positive", "topic": "world", "outlet": "ESO"}
+{"id": 281, "text": "Health ministry confirms isolated outbreak of viral hemorrhagic fever in forested district", "label": "negative", "topic": "world", "outlet": "WHO"}
+{"id": 282, "text": "Hostage negotiations secure peaceful release of five captured humanitarian aid workers", "label": "positive", "topic": "world", "outlet": "Reuters"}
+{"id": 283, "text": "Historic peace treaty anniversary commemorated with joint cultural ceremonies along river border", "label": "positive", "topic": "world", "outlet": "EuroNews"}
+{"id": 284, "text": "Severe drought leads to critical power shortages as major regional hydroelectric reservoir shrinks", "label": "negative", "topic": "world", "outlet": "Bloomberg"}
+{"id": 285, "text": "Passenger train derails in mountainous terrain; emergency rescue operations underway", "label": "negative", "topic": "world", "outlet": "AP"}
+{"id": 286, "text": "World tourism organization publishes global international visitor arrival indices for past year", "label": "neutral", "topic": "world", "outlet": "UNWTO"}
+{"id": 287, "text": "Explorers locate intact shipwreck of nineteenth-century polar expedition vessel on sea floor", "label": "positive", "topic": "world", "outlet": "BBC"}
+{"id": 288, "text": "Border skirmish leaves three security officers dead along mountainous border post", "label": "negative", "topic": "world", "outlet": "Reuters"}
+{"id": 289, "text": "Universal health coverage program passes milestone of enrolling ten million rural residents", "label": "positive", "topic": "world", "outlet": "WHO"}
+{"id": 290, "text": "Major structural fire damages historic cathedral belfry; valuable artifacts salvaged by responders", "label": "negative", "topic": "world", "outlet": "Le Monde"}
+{"id": 291, "text": "International treaty banning plastic pollution concludes third round of multilateral negotiations", "label": "neutral", "topic": "world", "outlet": "UNEP"}
+{"id": 292, "text": "Severe blizzard traps dozens of motorists on trans-continental highway pass in zero visibility", "label": "negative", "topic": "world", "outlet": "Weather Channel"}
+{"id": 293, "text": "Biologists record resurgence of endangered mountain gorilla population in national park census", "label": "positive", "topic": "world", "outlet": "WWF"}
+{"id": 294, "text": "Chemical tanker fire extinguished by salvage tugboats with no marine oil spill detected", "label": "positive", "topic": "world", "outlet": "Maritime Executive"}
+{"id": 295, "text": "Archaeologists discover 3,000-year-old ceremonial jade artifacts in Mesoamerican river basin", "label": "positive", "topic": "world", "outlet": "National Geographic"}
+{"id": 296, "text": "Cyber intrusion compromises national telecommunications billing database in island nation", "label": "negative", "topic": "world", "outlet": "ZDNet"}
+{"id": 297, "text": "Polar expedition team completes unassisted overland ski traverse across Greenland ice cap", "label": "positive", "topic": "world", "outlet": "Outside"}
+{"id": 298, "text": "Regional economic bloc signs free movement protocol facilitating reciprocal business travel", "label": "positive", "topic": "world", "outlet": "ECOWAS"}
+{"id": 299, "text": "Tropical storm weakens into remnant low-pressure system as it moves inland over mountains", "label": "neutral", "topic": "world", "outlet": "NHC"}
+{"id": 300, "text": "International children's literary award bestowed upon debut author from developing nation", "label": "positive", "topic": "world", "outlet": "Publishers Weekly"}

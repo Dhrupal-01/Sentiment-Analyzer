@@ -1,0 +1,424 @@
+{
+  "financial_phrasebank": [
+    {
+      "model_name": "vader",
+      "model_version": "3.3.2",
+      "dataset_name": "financial_phrasebank",
+      "contamination": {
+        "model_name": "vader",
+        "benchmark_name": "financial_phrasebank",
+        "is_contaminated": false,
+        "reason": null
+      },
+      "metrics": {
+        "sample_size": 342,
+        "accuracy": 0.5906,
+        "macro_f1": 0.5068,
+        "per_class": {
+          "positive": {
+            "precision": 0.3947,
+            "recall": 0.6977,
+            "f1": 0.5042,
+            "support": 86
+          },
+          "neutral": {
+            "precision": 0.8176,
+            "recall": 0.619,
+            "f1": 0.7046,
+            "support": 210
+          },
+          "negative": {
+            "precision": 0.3871,
+            "recall": 0.2609,
+            "f1": 0.3117,
+            "support": 46
+          }
+        },
+        "confusion_matrix": {
+          "positive": {
+            "positive": 60,
+            "neutral": 20,
+            "negative": 6
+          },
+          "neutral": {
+            "positive": 67,
+            "neutral": 130,
+            "negative": 13
+          },
+          "negative": {
+            "positive": 25,
+            "neutral": 9,
+            "negative": 12
+          }
+        },
+        "bootstrap_ci_macro_f1": [
+          0.4463,
+          0.5685
+        ]
+      },
+      "error_analysis": {
+        "model_name": "vader",
+        "total_samples": 342,
+        "total_errors": 140,
+        "category_counts": {
+          "negation": 3,
+          "domain_terms": 23,
+          "sarcasm": 2,
+          "mixed_sentiment": 4,
+          "neutral_reporting_of_negative_events": 1,
+          "other": 107
+        },
+        "samples_by_category": {
+          "negation": [
+            {
+              "text": "No other ev3 devices were involved in this action .",
+              "true_label": "neutral",
+              "pred_label": "negative",
+              "pred_score": -0.296,
+              "category": "negation"
+            },
+            {
+              "text": "The changes will take effect on 1 January 2010 , and they are not estimated to have an impact on the number of employees .",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.0772,
+              "category": "negation"
+            },
+            {
+              "text": "Besides , as there is no depositor preference in Finland , senior debt and deposits rank on a par , which is also taken into consideration , the agency added .",
+              "true_label": "neutral",
+              "pred_label": "negative",
+              "pred_score": -0.5719,
+              "category": "negation"
+            }
+          ],
+          "domain_terms": [
+            {
+              "text": "According to Sweden 's Minister for Local Government and Financial Markets , Mats Odell , the decision to sell the State 's shares in telecom group TeliaSonera can only be carried out in cooperation with the State of Finland .",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.296,
+              "category": "domain_terms"
+            },
+            {
+              "text": "Following the registration , the number of issued and outstanding shares of Basware is 12,890,829 .",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.7579,
+              "category": "domain_terms"
+            },
+            {
+              "text": "Of these shares 14,747,084 are held by the Company and the number of outstanding shares and voting rights attached to the shares amounts thus to 161,256,847 .",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.872,
+              "category": "domain_terms"
+            },
+            {
+              "text": "The shares shall be repurchased through public trading , for which reason the shares are repurchased otherwise than in proportion to the holdings of the shareholders .",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.5267,
+              "category": "domain_terms"
+            },
+            {
+              "text": "The change in holdings in accordance with Chapter 2 , Section 9 of the Finnish Securities Markets Act is described below .",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.296,
+              "category": "domain_terms"
+            }
+          ],
+          "sarcasm": [
+            {
+              "text": "Elisa said mobile subscriptions grew 7 percent during 2007 , mainly because of customers adopting so-called third generation mobile technology .",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "sarcasm"
+            },
+            {
+              "text": "RFID ( Radio Frequency Identification ) is a method of so-called intelligent transport , whereby information can be read and saved remotely .",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.7003,
+              "category": "sarcasm"
+            }
+          ],
+          "mixed_sentiment": [
+            {
+              "text": "Metsaliitto , however , narrowed its net loss for the second quarter of 2007 to 5.0 mln euro $ 6.9 mln from 61 mln euro $ 83.7 mln a year ago .",
+              "true_label": "positive",
+              "pred_label": "negative",
+              "pred_score": -0.3182,
+              "category": "mixed_sentiment"
+            },
+            {
+              "text": "` Nordea 's definitely too big for Sampo to acquire , ' said an analyst ` But Sampo would appear to have an agenda for Nordea ahead of the privatisation .",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.2144,
+              "category": "mixed_sentiment"
+            },
+            {
+              "text": "However , the company saw its net profit for the third quarter down to EUR1 .4 m from EUR1 .5 m for the corresponding period of 2009 .",
+              "true_label": "negative",
+              "pred_label": "positive",
+              "pred_score": 0.4404,
+              "category": "mixed_sentiment"
+            },
+            {
+              "text": "Sales in Finland decreased by 10.5 % in January , while sales outside Finland dropped by 17 % .",
+              "true_label": "negative",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "mixed_sentiment"
+            }
+          ],
+          "neutral_reporting_of_negative_events": [
+            {
+              "text": "The latest result included per-share charges of 5 cents for stock compensation , 1 cent for research and development and 1 cent for strategic investments .",
+              "true_label": "neutral",
+              "pred_label": "negative",
+              "pred_score": -0.2732,
+              "category": "neutral_reporting_of_negative_events"
+            }
+          ],
+          "other": [
+            {
+              "text": "Net income from life insurance rose to EUR 16.5 mn from EUR 14.0 mn , and net income from non-life insurance to EUR 22.6 mn from EUR 15.2 mn in 2009 .",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "other"
+            },
+            {
+              "text": "Net sales totaled EUR 93.6 mn , up from EUR 93.2 mn in the corresponding period in 2005 .",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "other"
+            },
+            {
+              "text": "Revenue grew by 2 percent to  x20ac 580 million $ 743 million , from  x20ac 569 million .",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "other"
+            },
+            {
+              "text": "Finland-based Elcoteq SE , a privately held provider of electronics manufacturing services to communications companies , said Thursday it signed a long-term manufacturing supply deal with communications equipment company Andrew Corp. .",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "other"
+            },
+            {
+              "text": "Operating income rose to EUR 696.4 mn from EUR 600.3 mn in 2009 .",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "other"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "in_domain": [
+    {
+      "model_name": "vader",
+      "model_version": "3.3.2",
+      "dataset_name": "in_domain",
+      "contamination": {
+        "model_name": "vader",
+        "benchmark_name": "in_domain",
+        "is_contaminated": false,
+        "reason": null
+      },
+      "metrics": {
+        "sample_size": 300,
+        "accuracy": 0.58,
+        "macro_f1": 0.5813,
+        "per_class": {
+          "positive": {
+            "precision": 0.5495,
+            "recall": 0.5051,
+            "f1": 0.5263,
+            "support": 99
+          },
+          "neutral": {
+            "precision": 0.5083,
+            "recall": 0.61,
+            "f1": 0.5545,
+            "support": 100
+          },
+          "negative": {
+            "precision": 0.7079,
+            "recall": 0.6238,
+            "f1": 0.6632,
+            "support": 101
+          }
+        },
+        "confusion_matrix": {
+          "positive": {
+            "positive": 50,
+            "neutral": 38,
+            "negative": 11
+          },
+          "neutral": {
+            "positive": 24,
+            "neutral": 61,
+            "negative": 15
+          },
+          "negative": {
+            "positive": 17,
+            "neutral": 21,
+            "negative": 63
+          }
+        },
+        "bootstrap_ci_macro_f1": [
+          0.5245,
+          0.6352
+        ]
+      },
+      "error_analysis": {
+        "model_name": "vader",
+        "total_samples": 300,
+        "total_errors": 126,
+        "category_counts": {
+          "negation": 3,
+          "domain_terms": 11,
+          "sarcasm": 0,
+          "mixed_sentiment": 0,
+          "neutral_reporting_of_negative_events": 3,
+          "other": 109
+        },
+        "samples_by_category": {
+          "negation": [
+            {
+              "text": "Thermal coal production reaches record high in major emerging economy despite transition goals",
+              "true_label": "negative",
+              "pred_label": "positive",
+              "pred_score": 0.0516,
+              "category": "negation"
+            },
+            {
+              "text": "Cholera epidemic spreads through flood-affected displacement camps lacking clean sanitation",
+              "true_label": "negative",
+              "pred_label": "positive",
+              "pred_score": 0.4019,
+              "category": "negation"
+            },
+            {
+              "text": "Chemical tanker fire extinguished by salvage tugboats with no marine oil spill detected",
+              "true_label": "positive",
+              "pred_label": "negative",
+              "pred_score": -0.5574,
+              "category": "negation"
+            }
+          ],
+          "domain_terms": [
+            {
+              "text": "Global equities rally as central banks signal potential pause in rate hikes",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "domain_terms"
+            },
+            {
+              "text": "Treasury yields slide to five-month low following labor market cooldown",
+              "true_label": "positive",
+              "pred_label": "negative",
+              "pred_score": -0.0772,
+              "category": "domain_terms"
+            },
+            {
+              "text": "Securities and Exchange Commission issues proposed disclosure rule for private funds",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.296,
+              "category": "domain_terms"
+            },
+            {
+              "text": "Federal Reserve Bank of New York releases quarterly household debt survey",
+              "true_label": "neutral",
+              "pred_label": "negative",
+              "pred_score": -0.3612,
+              "category": "domain_terms"
+            },
+            {
+              "text": "Tech stocks plunge in broad selloff triggered by surging bond yields",
+              "true_label": "negative",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "domain_terms"
+            }
+          ],
+          "sarcasm": [],
+          "mixed_sentiment": [],
+          "neutral_reporting_of_negative_events": [
+            {
+              "text": "Software vendor settles software piracy lawsuit with enterprise client for undisclosed sum",
+              "true_label": "neutral",
+              "pred_label": "negative",
+              "pred_score": -0.2263,
+              "category": "neutral_reporting_of_negative_events"
+            },
+            {
+              "text": "International Court of Justice schedules public hearings regarding maritime delimitation dispute",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.1779,
+              "category": "neutral_reporting_of_negative_events"
+            },
+            {
+              "text": "Tropical storm weakens into remnant low-pressure system as it moves inland over mountains",
+              "true_label": "neutral",
+              "pred_label": "negative",
+              "pred_score": -0.3182,
+              "category": "neutral_reporting_of_negative_events"
+            }
+          ],
+          "other": [
+            {
+              "text": "Wall Street opens sharply higher on cooler inflation print",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "other"
+            },
+            {
+              "text": "S&P 500 logs biggest weekly advance in six months after tech earnings",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "other"
+            },
+            {
+              "text": "Dow Jones Industrial Average climbs 400 points led by industrial sector surge",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "other"
+            },
+            {
+              "text": "Small-cap Russell 2000 index outperforms broader market with 2.8% rally",
+              "true_label": "positive",
+              "pred_label": "neutral",
+              "pred_score": 0.0,
+              "category": "other"
+            },
+            {
+              "text": "Treasury department to auction $42 billion in 10-year benchmark notes",
+              "true_label": "neutral",
+              "pred_label": "positive",
+              "pred_score": 0.2023,
+              "category": "other"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

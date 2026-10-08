@@ -1,7 +1,7 @@
-.PHONY: help install lint format test run-api clean
+.PHONY: help install lint format test eval run-api clean
 
 VENV ?= .venv
-PYTHON ?= $(shell which python3)
+PYTHON ?= $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,$(shell which python3))
 BIN = $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/,)
 
 help:
@@ -10,12 +10,13 @@ help:
 	@echo "  make lint      Run ruff check, ruff format check, and mypy"
 	@echo "  make format    Format code with ruff"
 	@echo "  make test      Run unit and integration tests with coverage"
+	@echo "  make eval      Run benchmark evaluations and update documentation"
 	@echo "  make run-api   Start FastAPI development server with reload"
 	@echo "  make clean     Remove cache files and build artifacts"
 
 install:
-	$(BIN)$(PYTHON) -m pip install --upgrade pip
-	$(BIN)$(PYTHON) -m pip install -e ".[dev]"
+	$(PYTHON) -m pip install --upgrade pip
+	$(PYTHON) -m pip install -e ".[dev]"
 	-$(BIN)pre-commit install
 
 lint:
@@ -29,6 +30,9 @@ format:
 
 test:
 	$(BIN)pytest
+
+eval:
+	$(PYTHON) scripts/evaluate.py
 
 run-api:
 	$(BIN)uvicorn news_sentiment.api.main:app --host 127.0.0.1 --port 8000 --reload
