@@ -2,7 +2,17 @@
 
 from datetime import UTC, datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -50,6 +60,10 @@ class Article(Base):
 
     duplicates: Mapped[list["ArticleDuplicate"]] = relationship(
         back_populates="canonical_article",
+        cascade="all, delete-orphan",
+    )
+    predictions: Mapped[list["Prediction"]] = relationship(
+        back_populates="article",
         cascade="all, delete-orphan",
     )
 
@@ -112,4 +126,44 @@ class IngestionRun(Base):
         return (
             f"<IngestionRun(id={self.id}, provider='{self.provider}', "
             f"inserted={self.articles_inserted}, status='{self.status}')>"
+        )
+
+
+class Prediction(Base):
+    """Model inference prediction record tied to an article and specific model version."""
+
+    __tablename__ = "predictions"
+    __table_args__ = (
+        UniqueConstraint(
+            "article_id",
+            "model_name",
+            "model_version",
+            name="uq_article_model_version",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    article_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("articles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    model_name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    model_version: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    label: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    score: Mapped[float] = mapped_column(Float, nullable=False)
+    probabilities: Mapped[dict[str, float]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    article: Mapped["Article"] = relationship(back_populates="predictions")
+
+    def __repr__(self) -> str:
+        return (
+            f"<Prediction(id={self.id}, model='{self.model_name}:{self.model_version}', "
+            f"label='{self.label}', score={self.score:.3f})>"
         )

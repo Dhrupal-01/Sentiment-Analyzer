@@ -22,6 +22,7 @@ dependencies = [
     "alembic>=1.13.0",
     "tenacity>=8.2.0",
     "feedparser>=6.0.10",
+    "vaderSentiment>=3.3.2",
 ]
 
 [project.optional-dependencies]
@@ -33,6 +34,10 @@ dev = [
     "pre-commit>=3.7.0",
     "httpx>=0.27.0",
     "respx>=0.23.0",
+]
+ml = [
+    "transformers>=4.40.0",
+    "torch>=2.0.0",
 ]
 
 [project.scripts]
@@ -76,14 +81,22 @@ no_implicit_optional = true
 show_error_codes = true
 
 [[tool.mypy.overrides]]
-module = "feedparser.*"
+module = [
+    "feedparser.*",
+    "vaderSentiment.*",
+    "transformers.*",
+    "torch.*",
+]
 ignore_missing_imports = true
 
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "--cov=news_sentiment --cov-report=term-missing"
+markers = [
+    "slow: marks tests as slow (deselected by default, run with -m slow)",
+]
+addopts = "--cov=news_sentiment --cov-report=term-missing -m 'not slow'"
 filterwarnings = [
     "ignore::starlette.exceptions.StarletteDeprecationWarning",
     "ignore::DeprecationWarning:feedparser.*",

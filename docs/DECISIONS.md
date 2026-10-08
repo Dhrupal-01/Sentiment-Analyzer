@@ -123,5 +123,46 @@ This document tracks all non-trivial technical and architectural decisions for t
   - Alembic tracks schema changes with explicit migration revisions (`0001_initial_schema.py`).
 - **Alternatives Rejected**:
   - Raw SQLite `sqlite3` driver with raw SQL strings: Rejected due to lack of portability to PostgreSQL and missing schema migration management.
-  - Heavy NoSQL or Document store (MongoDB): Rejected because structured relational data with foreign-key auditing between articles, topics, duplicates, and ingestion runs is fundamentally relational.
+  ---
+
+## ADR-010: Model Layer Interface, Registry, and Traceable Prediction Storage
+- **Date**: 2026-10-08
+- **Decision**: Define an abstract `SentimentModel` interface with `name`, `version`, and `predict(texts) -> list[Prediction]`. Predictions are registered in an immutable relational table with a composite unique constraint on `(article_id, model_name, model_version)`.
+- **Reasoning**:
+  - Reproducibility and experiment tracking: Machine learning predictions must always be traceable to the exact model name and version that produced them.
+  - Non-destructive updates: Existing prediction rows are never overwritten. When a new model version is released or registered, new rows are appended. This allows longitudinal tracking of model drift and side-by-side performance comparisons.
+  - Optional ML dependencies: Heavy frameworks (`torch`, `transformers`) are isolated in the `[ml]` optional extra. The core package can be installed and run anywhere using VADER with minimal resource usage and zero GPU/torch dependencies.
+- **Alternatives Rejected**:
+  - Storing only a single `sentiment` column on the `articles` table: Rejected because it prevents comparing multiple models on the same article and destroys historical lineage when models are retrained.
+  - Overwriting predictions on rerun: Rejected because it breaks auditability and prevents retrospective evaluation.
+
+---
+
+## ADR-011: VADER Lexicon Baseline and Uncalibrated Proportions Caveat
+- **Date**: 2026-10-08
+- **Decision**: Implement `VaderModel` as a lightweight rule-based baseline using `vaderSentiment`, applying standard compound score thresholds of $\pm 0.05$ (positive if compound $\ge 0.05$, negative if compound $\le -0.05$, else neutral).
+- **Caveat & Calibration Notice**:
+  - VADER outputs `pos`, `neu`, and `neg` proportions that sum to 1.0. It is critical to note that **these proportions are not calibrated Bayesian or frequentist probabilities**.
+  - They represent the ratio of lexicon-matched token valence intensities relative to total sentence length. Users and downstream modules must not treat them as calibrated posterior class probabilities $P(\text{class} \mid \text{text})$.
+  - For continuous evaluation, VADER's normalized compound score in $[-1.0, 1.0]$ is used directly as the model `score`.
+- **Alternatives Rejected**:
+  - TextBlob: Rejected because VADER provides superior handling of punctuation, casing emphasis, and negations in short headline strings.
+
+---
+
+## ADR-012: Pretrained Transformer Models, Continuous Score Alignment, and Training Domain Discrepancies
+- **Date**: 2026-10-08
+- **Decision**: Implement `HFTransformerModel` wrapping Hugging Face sequence classification pipelines with pinned model revisions and explicit label mappings. Calculate continuous score as $\text{score} = P(\text{positive}) - P(\text{negative}) \in [-1.0, 1.0]$. Register two initial pretrained models representing distinct linguistic domains:
+  1. `cardiffnlp/twitter-roberta-base-sentiment-latest` (`roberta`):
+     - *Training Domain*: Social media posts / Twitter tweets (~124M tweets, fine-tuned on TweetEval sentiment).
+     - *Linguistic Characteristics*: Optimized for informal text, colloquial phrasing, idioms, and punctuation intensity. Tends to interpret strong rhetoric or sensationalist news headlines with heightened valence.
+  2. `ProsusAI/finbert` (`finbert`):
+     - *Training Domain*: Financial news and analyst reports (Financial PhraseBank, corporate earnings transcripts).
+     - *Linguistic Characteristics*: Specialized for market terminology (e.g. "growth", "losses", "cut", "downgrade"). Tends to classify general political or social news as neutral, while responding sharply to macroeconomic signals.
+- **Continuous Score Formula**:
+  - By computing $\text{score} = P(\text{positive}) - P(\text{negative})$, transformer outputs align directly with VADER's compound score scale in $[-1.0, 1.0]$, enabling direct quantitative correlation, scatter analysis, and drift metrics.
+- **Comparative Metrics**:
+  - Implement pairwise agreement rate and Cohen's kappa ($\kappa = \frac{p_o - p_e}{1 - p_e}$) directly in pure Python without introducing heavy scikit-learn dependencies to evaluate inter-model concordance.
+- **Alternatives Rejected**:
+  - Using argmax class confidence as `score`: Rejected because confidence in $[0, 1]$ does not capture directionality or polar intensity across classes.
 

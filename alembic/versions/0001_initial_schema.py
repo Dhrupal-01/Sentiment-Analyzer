@@ -5,10 +5,11 @@ Revises:
 Create Date: 2026-10-08 15:45:00.000000
 
 """
+
 from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "0001_initial_schema"
@@ -44,7 +45,9 @@ def upgrade() -> None:
         sa.Column("topic", sa.String(length=100), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_articles_normalized_title"), "articles", ["normalized_title"], unique=False)
+    op.create_index(
+        op.f("ix_articles_normalized_title"), "articles", ["normalized_title"], unique=False
+    )
     op.create_index(op.f("ix_articles_url"), "articles", ["url"], unique=True)
     op.create_index(op.f("ix_articles_provider"), "articles", ["provider"], unique=False)
     op.create_index(op.f("ix_articles_topic"), "articles", ["topic"], unique=False)
@@ -93,7 +96,9 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_table("ingestion_runs")
-    op.drop_index(op.f("ix_article_duplicates_canonical_article_id"), table_name="article_duplicates")
+    op.drop_index(
+        op.f("ix_article_duplicates_canonical_article_id"), table_name="article_duplicates"
+    )
     op.drop_table("article_duplicates")
     op.drop_index(op.f("ix_articles_topic"), table_name="articles")
     op.drop_index(op.f("ix_articles_provider"), table_name="articles")

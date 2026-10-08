@@ -12,6 +12,7 @@ from news_sentiment.storage.models import (
     ArticleDuplicate,
     Base,
     IngestionRun,
+    Prediction,
     Topic,
 )
 from news_sentiment.storage.repository import (
@@ -27,6 +28,7 @@ __all__ = [
     "Base",
     "IngestionRun",
     "IngestionRunRepository",
+    "Prediction",
     "Topic",
     "TopicRepository",
     "get_db_session",
