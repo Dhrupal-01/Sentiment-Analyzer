@@ -1,0 +1,45 @@
+# Training configuration for headline sentiment fine-tuning
+# Evaluates checkpoints strictly on Financial PhraseBank validation split.
+# Never touches test sets during training/model selection.
+
+model:
+  base_model: "distilbert/distilroberta-base"
+  num_labels: 3
+  id2label:
+    0: "negative"
+    1: "neutral"
+    2: "positive"
+  label2id:
+    negative: 0
+    neutral: 1
+    positive: 2
+
+data:
+  train_path: "data/benchmarks/financial_phrasebank/train.jsonl"
+  val_path: "data/benchmarks/financial_phrasebank/val.jsonl"
+  test_path: "data/benchmarks/financial_phrasebank/test.jsonl"
+  in_domain_path: "data/benchmarks/in_domain_test.jsonl"
+  max_length: 128
+
+training:
+  learning_rate: 2.0e-5
+  num_train_epochs: 4
+  per_device_train_batch_size: 16
+  per_device_eval_batch_size: 32
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  evaluation_strategy: "epoch"
+  save_strategy: "epoch"
+  metric_for_best_model: "macro_f1"
+  greater_is_better: true
+  load_best_model_at_end: true
+  seeds:
+    - 42
+    - 43
+    - 44
+  output_dir: "models/fine_tuned"
+  logging_dir: "reports/training"
+
+hub:
+  push_to_hub: false
+  hub_model_id: "Dhrupal-01/distilroberta-financial-sentiment"

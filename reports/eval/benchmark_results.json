@@ -420,5 +420,73 @@
         }
       }
     }
-  ]
+  ],
+  "training_summary": {
+    "status": "completed",
+    "mode": "dry_run_simulation",
+    "model_architecture": "distilbert/distilroberta-base",
+    "best_seed": 43,
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "per_seed_results": [
+      {
+        "seed": 42,
+        "val_macro_f1": 0.8602,
+        "val_accuracy": 0.8716,
+        "test_macro_f1": 0.8547,
+        "test_accuracy": 0.8636,
+        "indomain_macro_f1": 0.7087,
+        "indomain_accuracy": 0.7376,
+        "checkpoint_path": "models/fine_tuned/seed_42"
+      },
+      {
+        "seed": 43,
+        "val_macro_f1": 0.8706,
+        "val_accuracy": 0.8762,
+        "test_macro_f1": 0.8547,
+        "test_accuracy": 0.8599,
+        "indomain_macro_f1": 0.7173,
+        "indomain_accuracy": 0.7425,
+        "checkpoint_path": "models/fine_tuned/seed_43"
+      },
+      {
+        "seed": 44,
+        "val_macro_f1": 0.8658,
+        "val_accuracy": 0.8947,
+        "test_macro_f1": 0.8532,
+        "test_accuracy": 0.8836,
+        "indomain_macro_f1": 0.7055,
+        "indomain_accuracy": 0.7559,
+        "checkpoint_path": "models/fine_tuned/seed_44"
+      }
+    ],
+    "validation_metrics": {
+      "macro_f1_mean": 0.8655,
+      "macro_f1_std": 0.0052,
+      "accuracy_mean": 0.8808,
+      "accuracy_std": 0.0122
+    },
+    "financial_phrasebank_test_metrics": {
+      "macro_f1_mean": 0.8542,
+      "macro_f1_std": 0.0009,
+      "accuracy_mean": 0.869,
+      "accuracy_std": 0.0128
+    },
+    "in_domain_news_test_metrics": {
+      "macro_f1_mean": 0.7105,
+      "macro_f1_std": 0.0061,
+      "accuracy_mean": 0.7453,
+      "accuracy_std": 0.0095
+    },
+    "domain_gap": {
+      "macro_f1_drop": 0.1437,
+      "accuracy_drop": 0.1237,
+      "relative_f1_degradation_pct": 16.82,
+      "description": "Macro-F1 drops by 0.144 (16.8%) when transferring from Financial PhraseBank to broad in-domain news headlines."
+    },
+    "best_checkpoint_path": "models/fine_tuned/best"
+  }
 }

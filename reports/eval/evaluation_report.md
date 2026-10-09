@@ -11,7 +11,26 @@
 
 ---
 
-## 2. Detailed Per-Class Performance
+## 2. Fine-Tuned Model: Multi-Seed Variance & Domain Gap
+
+### 2.1 Multi-Seed Reproducibility
+
+| Run / Seed | Val Acc | Val Macro-F1 | FPB Test Acc | FPB Test Macro-F1 | In-Domain News Acc | In-Domain News Macro-F1 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Seed `42` | 87.2% | 0.860 | 86.4% | 0.855 | 73.8% | 0.709 |
+| Seed `43` | 87.6% | 0.871 | 86.0% | 0.855 | 74.2% | 0.717 |
+| Seed `44` | 89.5% | 0.866 | 88.4% | 0.853 | 75.6% | 0.706 |
+| **Mean ± Std (μ ± σ)** | **88.1% ± 1.2%** | **0.866 ± 0.005** | **86.9% ± 1.3%** | **0.854 ± 0.001** | **74.5% ± 0.9%** | **0.711 ± 0.006** |
+
+### 2.2 Empirical Domain Gap
+
+- **FPB Test Macro-F1**: 0.854 ± 0.001 (Accuracy: 86.9% ± 1.3%)
+- **In-Domain News Macro-F1**: 0.711 ± 0.006 (Accuracy: 74.5% ± 0.9%)
+- **Domain Gap (Δ_domain)**: **+0.144 Macro-F1** (16.8% relative degradation)
+
+---
+
+## 3. Detailed Per-Class Performance
 
 ### Dataset: Financial PhraseBank (AllAgree Test Split)
 

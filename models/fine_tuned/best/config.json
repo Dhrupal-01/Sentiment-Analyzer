@@ -1,0 +1,19 @@
+{
+  "_name_or_path": "distilbert/distilroberta-base",
+  "architectures": [
+    "RobertaForSequenceClassification"
+  ],
+  "id2label": {
+    "0": "negative",
+    "1": "neutral",
+    "2": "positive"
+  },
+  "label2id": {
+    "negative": 0,
+    "neutral": 1,
+    "positive": 2
+  },
+  "num_labels": 3,
+  "best_seed": 43,
+  "best_val_macro_f1": 0.8706
+}

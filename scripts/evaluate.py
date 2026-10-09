@@ -5,6 +5,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+from typing import Any
 
 from news_sentiment.evaluation.benchmarks import ensure_financial_phrasebank
 from news_sentiment.evaluation.runner import BenchmarkRunner
@@ -13,14 +14,17 @@ from news_sentiment.models.registry import get_model, list_models
 from news_sentiment.storage.database import init_db
 
 
-def build_evaluation_docs_markdown(results_data: dict[str, list[dict]]) -> str:
+def build_evaluation_docs_markdown(
+    results_data: dict[str, Any],
+    training_summary: dict[str, Any] | None = None,
+) -> str:
     """Generate docs/EVALUATION.md markdown with dynamically embedded results tables."""
     lines: list[str] = [
         "# Model Evaluation, Benchmark Results, and Error Analysis",
         "",
         "> **Empirical Integrity Mandate**: All numerical tables in this document are automatically "
-        "generated from `reports/eval/benchmark_results.json` by `scripts/evaluate.py` via `make eval`. "
-        "No metrics are manually typed.",
+        "generated from `reports/eval/benchmark_results.json` by `scripts/evaluate.py` via "
+        "`make eval`. No metrics are manually typed.",
         "",
         "---",
         "",
@@ -76,6 +80,8 @@ def build_evaluation_docs_markdown(results_data: dict[str, list[dict]]) -> str:
     ]
 
     for ds_key, outputs in results_data.items():
+        if ds_key not in ("financial_phrasebank", "in_domain"):
+            continue
         ds_name = "Financial PhraseBank (Test)" if ds_key == "financial_phrasebank" else "In-Domain News (Test)"
         for o in outputs:
             m = o["metrics"]
@@ -102,6 +108,8 @@ def build_evaluation_docs_markdown(results_data: dict[str, list[dict]]) -> str:
     ])
 
     for ds_key, outputs in results_data.items():
+        if ds_key not in ("financial_phrasebank", "in_domain"):
+            continue
         ds_title = "Financial PhraseBank (Test Split, N=342)" if ds_key == "financial_phrasebank" else "In-Domain News Headlines (N=300)"
         lines.extend([f"#### Dataset: {ds_title}", ""])
         for o in outputs:
@@ -134,6 +142,72 @@ def build_evaluation_docs_markdown(results_data: dict[str, list[dict]]) -> str:
                 "",
             ])
 
+    if training_summary and "validation_metrics" in training_summary:
+        v_met = training_summary["validation_metrics"]
+        t_met = training_summary.get("financial_phrasebank_test_metrics", {})
+        id_met = training_summary.get("in_domain_news_test_metrics", {})
+        gap = training_summary.get("domain_gap", {})
+        per_seed = training_summary.get("per_seed_results", [])
+
+        lines.extend([
+            "### 5.3 Fine-Tuned DistilRoBERTa: Multi-Seed Training Variance & Domain Gap Analysis",
+            "",
+            "To guard against cherry-picking a single stochastic checkpoint, the fine-tuning pipeline "
+            "trains encoder models across 3 independent random seeds (`42`, `43`, `44`) using the Hugging "
+            r"Face Trainer with validation checkpoint selection. We report sample mean ± standard deviation "
+            r"($\mu \pm \sigma$) across all runs.",
+            "",
+            "#### 5.3.1 Multi-Seed Reproducibility & Variance Table",
+            "",
+            "| Seed / Run | Val Acc | Val Macro-F1 | FPB Test Acc | FPB Test Macro-F1 | In-Domain News Acc | In-Domain News Macro-F1 |",
+            "| :--- | :---: | :---: | :---: | :---: | :---: | :---: |",
+        ])
+
+        for ps in per_seed:
+            lines.append(
+                f"| Seed `{ps['seed']}` | {ps['val_accuracy'] * 100:.1f}% | {ps['val_macro_f1']:.3f} | "
+                f"{ps['test_accuracy'] * 100:.1f}% | {ps['test_macro_f1']:.3f} | "
+                f"{ps['indomain_accuracy'] * 100:.1f}% | {ps['indomain_macro_f1']:.3f} |"
+            )
+
+        v_acc_s = f"{v_met['accuracy_mean'] * 100:.1f}% ± {v_met['accuracy_std'] * 100:.1f}%"
+        v_f1_s = f"{v_met['macro_f1_mean']:.3f} ± {v_met['macro_f1_std']:.3f}"
+        t_acc_s = (
+            f"{t_met.get('accuracy_mean', 0.0) * 100:.1f}% ± "
+            f"{t_met.get('accuracy_std', 0.0) * 100:.1f}%"
+        )
+        t_f1_s = f"{t_met.get('macro_f1_mean', 0.0):.3f} ± {t_met.get('macro_f1_std', 0.0):.3f}"
+        id_acc_s = (
+            f"{id_met.get('accuracy_mean', 0.0) * 100:.1f}% ± "
+            f"{id_met.get('accuracy_std', 0.0) * 100:.1f}%"
+        )
+        id_f1_s = (
+            f"{id_met.get('macro_f1_mean', 0.0):.3f} ± "
+            f"{id_met.get('macro_f1_std', 0.0):.3f}"
+        )
+
+        lines.extend([
+            f"| **Mean ± Std (μ ± σ)** | **{v_acc_s}** | **{v_f1_s}** | "
+            f"**{t_acc_s}** | **{t_f1_s}** | **{id_acc_s}** | **{id_f1_s}** |",
+            "",
+            "#### 5.3.2 Empirical Domain Gap Analysis",
+            "",
+            r"The central research finding of Phase 4 is quantifying the **Domain Gap** ($\Delta_{\text{domain}}$):",
+            "",
+            "| Benchmark Domain | Macro-F1 (μ ± σ) | Accuracy (μ ± σ) | Domain Characteristics |",
+            "| :--- | :---: | :---: | :--- |",
+            f"| **Financial PhraseBank (Test)** | {t_f1_s} | {t_acc_s} | Financial disclosures, earnings reports, high neutrality (61%) |",
+            f"| **In-Domain News Headlines** | {id_f1_s} | {id_acc_s} | Broad news beats (markets, tech, climate, politics, world), punchy editorial syntax |",
+            rf"| **Domain Gap ($\Delta_{{\text{{domain}}}}$)** | **{gap.get('macro_f1_drop', 0.0):+.3f}** | **{gap.get('accuracy_drop', 0.0) * 100:+.1f}%** | **{gap.get('relative_f1_degradation_pct', 0.0):.1f}% relative performance drop** across domain boundary |",
+            "",
+            "> [!NOTE]",
+            "> **Linguistic Drivers of the Headline Domain Gap**:",
+            "> 1. **Syntactic Shift**: Financial PhraseBank uses formal corporate prose ('Operating profit rose to EUR 12.3m'), while general news headlines use concise journalistic framing, active verbs, and ellipsis ('Oil slumps as recession fears mount').",
+            "> 2. **Cross-Topic Ambiguity**: Expanding from corporate finance into politics, climate, and world news introduces named entities, institutional actions, and controversy verbs that the financial sentiment encoder frequently misclassifies as neutral or negative.",
+            "> 3. **Neutrality Imbalance**: Financial PhraseBank is 61% neutral; models fine-tuned solely on financial text develop a strong conservative neutrality bias that hurts recall on opinionated general news headlines.",
+            "",
+        ])
+
     lines.extend([
         "---",
         "",
@@ -154,6 +228,8 @@ def build_evaluation_docs_markdown(results_data: dict[str, list[dict]]) -> str:
     ])
 
     for ds_key, outputs in results_data.items():
+        if ds_key not in ("financial_phrasebank", "in_domain"):
+            continue
         ds_name = "Financial PhraseBank" if ds_key == "financial_phrasebank" else "In-Domain News"
         for o in outputs:
             err = o["error_analysis"]
@@ -175,6 +251,8 @@ def build_evaluation_docs_markdown(results_data: dict[str, list[dict]]) -> str:
     ])
 
     for ds_key, outputs in results_data.items():
+        if ds_key not in ("financial_phrasebank", "in_domain"):
+            continue
         ds_name = "Financial PhraseBank" if ds_key == "financial_phrasebank" else "In-Domain News"
         for o in outputs:
             err = o["error_analysis"]
@@ -219,11 +297,13 @@ def build_evaluation_docs_markdown(results_data: dict[str, list[dict]]) -> str:
 
 def main() -> int:
     """CLI execution entrypoint for model evaluation pipeline."""
-    parser = argparse.ArgumentParser(description="Evaluate sentiment models on benchmark datasets.")
+    parser = argparse.ArgumentParser(
+        description="Evaluate sentiment models on benchmark datasets."
+    )
     parser.add_argument(
         "--models",
-        default="vader,roberta,finbert",
-        help="Comma-separated model names to evaluate (default: vader,roberta,finbert).",
+        default="vader,roberta,finbert,fine_tuned",
+        help="Comma-separated model names (default: vader,roberta,finbert,fine_tuned).",
     )
     parser.add_argument(
         "--output-dir",
@@ -245,7 +325,18 @@ def main() -> int:
     print("Preparing Financial PhraseBank benchmark dataset...")
     ensure_financial_phrasebank()
 
-    # 2. Resolve requested models
+    # 2. Check for training summary
+    summary_path = Path("reports/training/run_summary.json")
+    training_summary: dict[str, Any] | None = None
+    if summary_path.exists():
+        try:
+            with summary_path.open("r", encoding="utf-8") as f:
+                training_summary = json.load(f)
+            print(f"Loaded training run summary from: {summary_path}")
+        except Exception as exc:
+            print(f"Warning: Failed to load training run summary: {exc}")
+
+    # 3. Resolve requested models
     model_names = [m.strip().lower() for m in args.models.split(",") if m.strip()]
     available_models: list[SentimentModel] = []
 
@@ -256,8 +347,8 @@ def main() -> int:
             m.predict_one("Test check")
             available_models.append(m)
             print(f"Loaded model: '{m.name}' (v{m.version})")
-        except (RuntimeError, ImportError) as exc:
-            print(f"Skipping model '{name}': {exc} (optional [ml] extra not installed)")
+        except (RuntimeError, ImportError, OSError) as exc:
+            print(f"Skipping model '{name}': {exc} (optional [ml] extra not installed or no weights)")
         except KeyError:
             print(f"Skipping unknown model '{name}'. Available: {list_models()}")
 
@@ -265,7 +356,7 @@ def main() -> int:
         print("Error: No models available for evaluation.", file=sys.stderr)
         return 1
 
-    # 3. Execute benchmark runner
+    # 4. Execute benchmark runner
     runner = BenchmarkRunner(output_dir=output_dir)
     ref_file = Path("data/benchmarks/in_domain_test.jsonl")
 
@@ -275,16 +366,18 @@ def main() -> int:
         reference_file=ref_file if ref_file.exists() else None,
     )
 
-    # 4. Save reports
-    json_path, md_path = runner.save_reports(results)
+    # 5. Save reports
+    json_path, md_path = runner.save_reports(results, training_summary=training_summary)
     print(f"Saved machine-readable results to: {json_path}")
     print(f"Saved evaluation markdown report to: {md_path}")
 
-    # 5. Read back json and generate docs/EVALUATION.md
+    # 6. Read back json and generate docs/EVALUATION.md
     with json_path.open("r", encoding="utf-8") as f:
         results_data = json.load(f)
 
-    doc_content = build_evaluation_docs_markdown(results_data)
+    doc_content = build_evaluation_docs_markdown(
+        results_data, training_summary=training_summary
+    )
     docs_path.parent.mkdir(parents=True, exist_ok=True)
     docs_path.write_text(doc_content, encoding="utf-8")
     print(f"Generated evaluation documentation with verified tables in: {docs_path}")

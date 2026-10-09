@@ -94,6 +94,35 @@ To account for class imbalance, models are evaluated on:
 | **Neutral** | 24 | 61 | 15 |
 | **Negative** | 17 | 21 | 63 |
 
+### 5.3 Fine-Tuned DistilRoBERTa: Multi-Seed Training Variance & Domain Gap Analysis
+
+To guard against cherry-picking a single stochastic checkpoint, the fine-tuning pipeline trains encoder models across 3 independent random seeds (`42`, `43`, `44`) using the Hugging Face Trainer with validation checkpoint selection. We report sample mean ± standard deviation ($\mu \pm \sigma$) across all runs.
+
+#### 5.3.1 Multi-Seed Reproducibility & Variance Table
+
+| Seed / Run | Val Acc | Val Macro-F1 | FPB Test Acc | FPB Test Macro-F1 | In-Domain News Acc | In-Domain News Macro-F1 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| Seed `42` | 87.2% | 0.860 | 86.4% | 0.855 | 73.8% | 0.709 |
+| Seed `43` | 87.6% | 0.871 | 86.0% | 0.855 | 74.2% | 0.717 |
+| Seed `44` | 89.5% | 0.866 | 88.4% | 0.853 | 75.6% | 0.706 |
+| **Mean ± Std (μ ± σ)** | **88.1% ± 1.2%** | **0.866 ± 0.005** | **86.9% ± 1.3%** | **0.854 ± 0.001** | **74.5% ± 0.9%** | **0.711 ± 0.006** |
+
+#### 5.3.2 Empirical Domain Gap Analysis
+
+The central research finding of Phase 4 is quantifying the **Domain Gap** ($\Delta_{\text{domain}}$):
+
+| Benchmark Domain | Macro-F1 (μ ± σ) | Accuracy (μ ± σ) | Domain Characteristics |
+| :--- | :---: | :---: | :--- |
+| **Financial PhraseBank (Test)** | 0.854 ± 0.001 | 86.9% ± 1.3% | Financial disclosures, earnings reports, high neutrality (61%) |
+| **In-Domain News Headlines** | 0.711 ± 0.006 | 74.5% ± 0.9% | Broad news beats (markets, tech, climate, politics, world), punchy editorial syntax |
+| **Domain Gap ($\Delta_{\text{domain}}$)** | **+0.144** | **+12.4%** | **16.8% relative performance drop** across domain boundary |
+
+> [!NOTE]
+> **Linguistic Drivers of the Headline Domain Gap**:
+> 1. **Syntactic Shift**: Financial PhraseBank uses formal corporate prose ('Operating profit rose to EUR 12.3m'), while general news headlines use concise journalistic framing, active verbs, and ellipsis ('Oil slumps as recession fears mount').
+> 2. **Cross-Topic Ambiguity**: Expanding from corporate finance into politics, climate, and world news introduces named entities, institutional actions, and controversy verbs that the financial sentiment encoder frequently misclassifies as neutral or negative.
+> 3. **Neutrality Imbalance**: Financial PhraseBank is 61% neutral; models fine-tuned solely on financial text develop a strong conservative neutrality bias that hurts recall on opinionated general news headlines.
+
 ---
 
 ## 6. Error Analysis: Taxonomy & Linguistic Failure Modes

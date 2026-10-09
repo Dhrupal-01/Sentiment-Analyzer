@@ -164,6 +164,7 @@ class BenchmarkRunner:
         results: dict[str, list[ModelEvaluationOutput]],
         json_path: Path | None = None,
         md_path: Path | None = None,
+        training_summary: dict[str, Any] | None = None,
     ) -> tuple[Path, Path]:
         """Save evaluation results as machine-readable JSON and formatted Markdown."""
         out_json = json_path or (self.output_dir / "benchmark_results.json")
@@ -174,10 +175,13 @@ class BenchmarkRunner:
         for ds_name, outputs in results.items():
             serializable[ds_name] = [asdict(o) for o in outputs]
 
+        if training_summary:
+            serializable["training_summary"] = training_summary
+
         out_json.write_text(json.dumps(serializable, indent=2), encoding="utf-8")
 
         # Render Markdown
-        md_content = self.render_markdown_report(results)
+        md_content = self.render_markdown_report(results, training_summary=training_summary)
         out_md.write_text(md_content, encoding="utf-8")
 
         return out_json, out_md
@@ -185,6 +189,7 @@ class BenchmarkRunner:
     def render_markdown_report(
         self,
         results: dict[str, list[ModelEvaluationOutput]],
+        training_summary: dict[str, Any] | None = None,
     ) -> str:
         """Render complete evaluation results into GitHub-flavored Markdown."""
         lines: list[str] = [
@@ -223,12 +228,71 @@ class BenchmarkRunner:
                         f"| {ds_title} | `{o.model_name}` | {acc_pct} | {f1_val} | {status_str} |"
                     )
 
+        if training_summary and "validation_metrics" in training_summary:
+            v_met = training_summary["validation_metrics"]
+            t_met = training_summary.get("financial_phrasebank_test_metrics", {})
+            id_met = training_summary.get("in_domain_news_test_metrics", {})
+            gap = training_summary.get("domain_gap", {})
+            per_seed = training_summary.get("per_seed_results", [])
+
+            lines.extend(
+                [
+                    "",
+                    "---",
+                    "",
+                    "## 2. Fine-Tuned Model: Multi-Seed Variance & Domain Gap",
+                    "",
+                    "### 2.1 Multi-Seed Reproducibility",
+                    "",
+                    "| Run / Seed | Val Acc | Val Macro-F1 | FPB Test Acc | FPB Test Macro-F1 | "
+                    "In-Domain News Acc | In-Domain News Macro-F1 |",
+                    "| :--- | :---: | :---: | :---: | :---: | :---: | :---: |",
+                ]
+            )
+            for ps in per_seed:
+                lines.append(
+                    f"| Seed `{ps['seed']}` | {ps['val_accuracy'] * 100:.1f}% | "
+                    f"{ps['val_macro_f1']:.3f} | {ps['test_accuracy'] * 100:.1f}% | "
+                    f"{ps['test_macro_f1']:.3f} | {ps['indomain_accuracy'] * 100:.1f}% | "
+                    f"{ps['indomain_macro_f1']:.3f} |"
+                )
+
+            v_acc_s = f"{v_met['accuracy_mean'] * 100:.1f}% ± {v_met['accuracy_std'] * 100:.1f}%"
+            v_f1_s = f"{v_met['macro_f1_mean']:.3f} ± {v_met['macro_f1_std']:.3f}"
+            t_acc_s = (
+                f"{t_met.get('accuracy_mean', 0.0) * 100:.1f}% ± "
+                f"{t_met.get('accuracy_std', 0.0) * 100:.1f}%"
+            )
+            t_f1_s = f"{t_met.get('macro_f1_mean', 0.0):.3f} ± {t_met.get('macro_f1_std', 0.0):.3f}"
+            id_acc_s = (
+                f"{id_met.get('accuracy_mean', 0.0) * 100:.1f}% ± "
+                f"{id_met.get('accuracy_std', 0.0) * 100:.1f}%"
+            )
+            id_f1_s = (
+                f"{id_met.get('macro_f1_mean', 0.0):.3f} ± {id_met.get('macro_f1_std', 0.0):.3f}"
+            )
+
+            lines.extend(
+                [
+                    f"| **Mean ± Std (μ ± σ)** | **{v_acc_s}** | **{v_f1_s}** | "
+                    f"**{t_acc_s}** | **{t_f1_s}** | **{id_acc_s}** | **{id_f1_s}** |",
+                    "",
+                    "### 2.2 Empirical Domain Gap",
+                    "",
+                    f"- **FPB Test Macro-F1**: {t_f1_s} (Accuracy: {t_acc_s})",
+                    f"- **In-Domain News Macro-F1**: {id_f1_s} (Accuracy: {id_acc_s})",
+                    f"- **Domain Gap (Δ_domain)**: "
+                    f"**{gap.get('macro_f1_drop', 0.0):+.3f} Macro-F1** "
+                    f"({gap.get('relative_f1_degradation_pct', 0.0):.1f}% relative degradation)",
+                ]
+            )
+
         lines.extend(
             [
                 "",
                 "---",
                 "",
-                "## 2. Detailed Per-Class Performance",
+                "## 3. Detailed Per-Class Performance",
                 "",
             ]
         )

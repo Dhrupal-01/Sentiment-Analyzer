@@ -216,3 +216,52 @@ This document tracks all non-trivial technical and architectural decisions for t
   - Hand-typing metrics into markdown documentation: Rejected to uphold strict empirical integrity and eliminate human transcription errors.
   - Normal approximation confidence intervals ($z \cdot SE$): Rejected because F1 distributions on skewed data are asymmetric and violate asymptotic normality assumptions.
 
+---
+
+## ADR-017: Multi-Seed Fine-Tuning Protocol with Validation Checkpoint Selection
+- **Date**: 2026-10-09
+- **Decision**: Train sequence classification encoder models (`distilbert/distilroberta-base`) across 3 independent random seeds (`[42, 43, 44]`) using the Hugging Face Trainer. Checkpoints are selected strictly by Macro-F1 on the validation split (`load_best_model_at_end=True`, `metric_for_best_model="macro_f1"`). Report aggregate performance as sample mean ± standard deviation ($\mu \pm \sigma$), saving the best seed checkpoint to `models/fine_tuned/best`.
+- **Reasoning**:
+  - Small dataset stochasticity: Fine-tuning small transformers on moderate datasets (~1.5k examples) exhibits seed-dependent weight initialization and mini-batch ordering variance. Reporting a single best run cherry-picks outliers and inflates performance estimates.
+  - Metric alignment: Optimizing for Macro-F1 instead of overall accuracy prevents majority-class (61% neutral) dominance and incentivizes balanced precision/recall across all three sentiment classes.
+- **Alternatives Rejected**:
+  - Training on a single seed and publishing peak metrics: Rejected as scientifically misleading and non-reproducible.
+  - Checkpoint selection on training loss: Rejected because training loss decreases monotonically even as models overfit, failing to select generalizable representations.
+
+---
+
+## ADR-018: Strict Isolation of Held-Out Test Splits During Model Development
+- **Date**: 2026-10-09
+- **Decision**: Quarantine both the benchmark test split (`data/benchmarks/financial_phrasebank/test.jsonl`) and the in-domain news headline test set (`data/benchmarks/in_domain_test.jsonl`) from all model training, hyperparameter tuning, and early stopping decisions. Test splits are evaluated strictly post-hoc after all training across seeds has concluded.
+- **Reasoning**:
+  - Data snooping prevention: Using test set metrics to inform checkpoint selection or hyperparameter tuning leaks information from the evaluation split into the model pipeline, producing overly optimistic generalization estimates.
+  - Scientific validity: The test split must represent an authentic untouched simulation of production deployment.
+- **Alternatives Rejected**:
+  - Evaluating test set at each epoch and saving the model with highest test score: Rejected as explicit data leakage and methodological malpractice.
+
+---
+
+## ADR-019: Measuring and Quantifying the Cross-Domain Generalization Gap
+- **Date**: 2026-10-09
+- **Decision**: Evaluate fine-tuned models on both the in-domain financial benchmark test split (N=342) and our stratified journalistic news headline set (N=300). Explicitly define and calculate the Domain Gap:
+  $$\Delta_{\text{domain}} = \text{Macro-F1}_{\text{FPB}} - \text{Macro-F1}_{\text{InDomain}}$$
+  and report relative degradation percentage in evaluation reports and model cards.
+- **Reasoning**:
+  - Answers core research question: Demonstrates with empirical evidence how much performance drops when transferring models trained on structured financial sentences to punchy, editorial news headlines across varied news beats (markets, tech, climate, politics, world).
+  - Production guidance: Informs production architecture whether a single financial model suffices or if cross-domain headline adaptation is mandatory for general news monitoring.
+- **Alternatives Rejected**:
+  - Evaluating only on Financial PhraseBank: Rejected because it fails to answer how models perform on real general news headlines.
+  - Subjective assessment of domain shift: Rejected in favor of quantifiable mathematical delta ($\Delta_{\text{domain}}$).
+
+---
+
+## ADR-020: Dual Training Pipeline: Cloud GPU Trainer with Zero-Cost Local Dry-Run
+- **Date**: 2026-10-09
+- **Decision**: Implement `scripts/train.py` with dual operating modes: (1) full multi-seed Hugging Face `Trainer` execution for GPU environments (Google Colab, Kaggle, or local GPU workstation), and (2) `--dry-run` simulation mode for zero-cost CPU test suite validation and CI execution without PyTorch GPU dependencies.
+- **Reasoning**:
+  - Cost and accessibility: Heavy GPU dependencies (PyTorch, CUDA, cuDNN, 4GB+ wheel downloads) should not be mandatory to run unit tests, verify schema formatting, or execute CI test pipelines.
+  - User empowerment: The user can run actual training on free Colab/Kaggle GPUs using `notebooks/finetune_sentiment.ipynb`, while CI and local dev test pipelines remain instant and deterministic.
+- **Alternatives Rejected**:
+  - Requiring a dedicated paid GPU instance for training: Rejected because free Colab T4 and Kaggle GPUs provide sufficient compute (<15 min).
+  - Mocking the training script with unformatted stubs: Rejected because `--dry-run` produces the exact output schema, CSV telemetry, and JSON summaries required by the evaluation pipeline.
+

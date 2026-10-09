@@ -1,10 +1,48 @@
 """Model registry providing discovery and instantiation of sentiment models."""
 
+import os
 from collections.abc import Callable
+from pathlib import Path
 
 from news_sentiment.models.base import SentimentModel
 from news_sentiment.models.transformer import MODEL_TRAINING_DOMAINS, HFTransformerModel
 from news_sentiment.models.vader import VaderModel
+
+FINE_TUNED_LABEL_MAPPING = {
+    "LABEL_0": "negative",
+    "LABEL_1": "neutral",
+    "LABEL_2": "positive",
+    "negative": "negative",
+    "neutral": "neutral",
+    "positive": "positive",
+}
+
+
+def _load_fine_tuned_model() -> SentimentModel:
+    """Load the fine-tuned sequence classification model from local disk or hub."""
+    local_path = Path("models/fine_tuned/best")
+    if local_path.exists():
+        return HFTransformerModel(
+            model_id=str(local_path),
+            name="fine_tuned",
+            revision="local",
+            label_mapping=FINE_TUNED_LABEL_MAPPING,  # type: ignore[arg-type]
+        )
+
+    env_path = os.getenv("FINE_TUNED_MODEL_PATH")
+    if env_path:
+        return HFTransformerModel(
+            model_id=env_path,
+            name="fine_tuned",
+            revision="main",
+            label_mapping=FINE_TUNED_LABEL_MAPPING,  # type: ignore[arg-type]
+        )
+
+    raise RuntimeError(
+        "Fine-tuned model checkpoint not found at 'models/fine_tuned/best'. "
+        "Train the model using 'python scripts/train.py' or set FINE_TUNED_MODEL_PATH."
+    )
+
 
 # Registry storing factory callables for lazy instantiation
 _REGISTRY: dict[str, Callable[[], SentimentModel]] = {
@@ -19,6 +57,7 @@ _REGISTRY: dict[str, Callable[[], SentimentModel]] = {
         name="finbert",
         revision="main",
     ),
+    "fine_tuned": _load_fine_tuned_model,
 }
 
 # Cache instantiated model singletons
@@ -72,4 +111,10 @@ def get_model_domain(name: str) -> str:
         return MODEL_TRAINING_DOMAINS["cardiffnlp/twitter-roberta-base-sentiment-latest"]
     if clean_name == "finbert":
         return MODEL_TRAINING_DOMAINS["ProsusAI/finbert"]
+    if clean_name in ("fine_tuned", "fine-tuned"):
+        return (
+            "Fine-tuned DistilRoBERTa sequence classification model trained on the "
+            "Financial PhraseBank 100% agreement train split (1,584 sentences). "
+            "Checkpoint selected on validation split; evaluated for domain gap on news headlines."
+        )
     return "Custom sentiment model domain."
