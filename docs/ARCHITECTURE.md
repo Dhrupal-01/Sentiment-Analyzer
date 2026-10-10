@@ -9,7 +9,7 @@ The **News Sentiment Analyzer** is a production-grade system engineered to inges
 
 News headlines exhibit distinct linguistic characteristics: concise syntax, domain-specific terminology (e.g., financial markets, geopolitical developments), irony, rhetorical questions, and dense emotional phrasing. This project empirically benchmarks:
 1. **Model Reliability**: Predictive performance, calibration, and error distributions across Lexicon baselines, off-the-shelf general/financial transformers, and fine-tuned domain models.
-2. **Explanation Faithfulness**: Whether attribution methods (e.g., Integrated Gradients, token saliency, erasure benchmarks) accurately identify the true causal drivers of model decisions or merely provide plausible post-hoc rationalizations.
+2. **Explanation Faithfulness**: Whether attribution methods (e.g., Integrated Gradients, SHAP partition explainers, occlusion/erasure benchmarks) accurately identify the true causal drivers of model decisions or merely provide plausible post-hoc rationalizations.
 
 ---
 
@@ -20,42 +20,43 @@ The following diagram illustrates the major architectural components, data bound
 ```mermaid
 graph TD
     subgraph External["External News Feeds"]
-        RSS["RSS Feeds"]
-        NewsAPI["NewsAPI"]
-        Guardian["The Guardian API"]
+        GDELT["GDELT DOC 2.0 API"]
+        RSS["Publisher RSS Wire Feeds"]
+        NewsAPI["NewsAPI.org (Optional Key-Gated)"]
     end
 
     subgraph IngestionLayer["Ingestion Layer (src/news_sentiment/sources)"]
-        Collector["Ingestion Engine / Connectors"]
-        Normalizer["Text Normalizer & Deduplicator"]
+        Collector["Ingestion Service & Source Clients"]
+        Normalizer["Text Normalizer, Canonicalizer & Deduplicator"]
     end
 
     subgraph StorageLayer["Storage Layer (src/news_sentiment/storage)"]
-        SQLAlchemy["SQLAlchemy ORM (Postgres / SQLite)"]
+        SQLAlchemy["SQLAlchemy Declarative ORM (SQLite / Postgres)"]
         Alembic["Alembic Migrations"]
-        DB[(News & Sentiment Database)]
+        DB[(News Sentiment Database)]
     end
 
     subgraph ModelLayer["Model Layer (src/news_sentiment/models)"]
-        ModelInterface["BaseSentimentModel (Unified Interface)"]
+        ModelInterface["SentimentModel (Unified Interface)"]
         VADER["VADER Baseline"]
         Pretrained["Pretrained Transformers (FinBERT / RoBERTa)"]
         FineTuned["Fine-Tuned Domain Model"]
+        Registry["Model Registry & InferencePipeline"]
     end
 
     subgraph ExplainEvalLayer["Explainability & Evaluation (src/news_sentiment/explain & evaluation)"]
-        Explainer["Attribution Engine (Token Saliency / IG)"]
-        Faithfulness["Faithfulness Benchmarks (Sufficiency / Comprehensiveness)"]
-        Metrics["Evaluation Suite (Accuracy, F1, ECE, Robustness)"]
+        Explainer["Attribution Service (Occlusion / IG / SHAP)"]
+        Faithfulness["Faithfulness Benchmarks (AOPC Deletion & Insertion)"]
+        Metrics["Evaluation Suite (Macro-F1, Bootstrap CIs, Calibration)"]
     end
 
     subgraph ServingLayer["API & Access Layer (src/news_sentiment/api & cli)"]
-        FastAPI["FastAPI REST API"]
+        FastAPI["FastAPI REST API (/api/v1)"]
         CLI["Typer CLI (newsent)"]
     end
 
     subgraph PresentationLayer["Presentation Layer (frontend/)"]
-        WebUI["React + TypeScript (Vite) Dashboard"]
+        WebUI["React 19 + TypeScript (Vite) Dashboard"]
     end
 
     External --> Collector
@@ -67,20 +68,18 @@ graph TD
     ModelInterface -.-> VADER
     ModelInterface -.-> Pretrained
     ModelInterface -.-> FineTuned
+    Registry --> ModelInterface
 
-    Normalizer --> ModelInterface
-    ModelInterface --> Explainer
+    Collector --> Registry
+    Registry --> Explainer
     Explainer --> Faithfulness
-    ModelInterface --> Metrics
-
-    ModelInterface --> SQLAlchemy
-    Explainer --> SQLAlchemy
+    Registry --> Metrics
 
     SQLAlchemy --> FastAPI
     DB --> FastAPI
     FastAPI --> WebUI
     FastAPI --> CLI
-    CLI --> ModelInterface
+    CLI --> Registry
 ```
 
 ---
@@ -94,33 +93,31 @@ sequenceDiagram
     autonumber
     actor User as User / Analyst
     participant UI as React Dashboard
-    participant API as FastAPI Backend
-    participant Ingest as Ingestion Engine (sources)
-    participant Models as Model Layer (models)
-    participant Explain as Explainability (explain)
+    participant API as FastAPI Backend (/api/v1)
+    participant Ingest as Ingestion Service (sources)
+    participant Models as Model Layer & Registry (models)
+    participant Explain as Explainability Service (explain)
     participant DB as Database (SQLAlchemy)
 
     User->>UI: Select topic & date range
-    UI->>API: GET /api/v1/sentiment/trends?topic=markets
+    UI->>API: GET /api/v1/topics/{id}/trend
     API->>DB: Query aggregated sentiment over time
-    DB-->>API: Return time-series metrics
-    API-->>UI: Deliver JSON series for charting
+    DB-->>API: Return daily scores and article volume series
+    API-->>UI: Deliver JSON series for Recharts visualizer
 
-    Note over Ingest,DB: Background Ingestion & Inference Pipeline
-    Ingest->>Ingest: Fetch headlines from external sources
-    Ingest->>DB: Store raw headlines & metadata
-    Ingest->>Models: Predict sentiment (VADER, FinBERT, Fine-Tuned)
-    Models-->>Ingest: Sentiment scores & label distributions
-    Ingest->>Explain: Generate attribution & highlighted tokens
-    Explain-->>Ingest: Token saliency weights
-    Ingest->>DB: Persist predictions, explanations, and topic tags
+    Note over Ingest,DB: Background Ingestion & Scheduled Inference Pipeline
+    Ingest->>Ingest: Fetch headlines from GDELT, RSS, or NewsAPI
+    Ingest->>DB: Store canonical articles & metadata (Article table)
+    Ingest->>Models: Batch predict sentiment across active models
+    Models-->>Ingest: PredictionResult (label, probabilities, signed score)
+    Ingest->>DB: Persist predictions (ArticlePrediction table)
 
-    User->>UI: Inspect headline prediction & explanation
-    UI->>API: GET /api/v1/headlines/{id}/explain
-    API->>DB: Retrieve prediction and attribution data
-    DB-->>API: Headline, scores, token attributions
-    API-->>UI: Visual explanation payload (token weights)
-    UI-->>User: Render interactive saliency heat map
+    User->>UI: Inspect headline prediction & attribution
+    UI->>API: POST /api/v1/explain {text, model, method}
+    API->>Explain: Run token attribution (Occlusion, IG, or SHAP)
+    Explain-->>API: Token attributions (list of tokens and signed weights)
+    API-->>UI: Visual explanation payload
+    UI-->>User: Render interactive token attribution heatmap
 ```
 
 ---
@@ -129,18 +126,18 @@ sequenceDiagram
 
 The codebase uses a strict `src/` layout under the root package `news_sentiment`:
 
-| Subpackage | Responsibility | Key Classes / Responsibilities |
+| Subpackage | Responsibility | Key Classes / Modules |
 | :--- | :--- | :--- |
 | `news_sentiment.config` | Settings & logging | `Settings` (Pydantic Settings), `configure_logging`, `JSONFormatter`, `ConsoleFormatter` |
-| `news_sentiment.sources` | Ingestion connectors | `BaseSourceClient`, RSS parser, NewsAPI client, deduplication, headline cleaning |
-| `news_sentiment.storage` | Persistence & schema | SQLAlchemy declarative models (`Headline`, `SentimentResult`, `Explanation`, `Topic`), Alembic migrations |
-| `news_sentiment.models` | Inference abstraction | `BaseSentimentModel`, `VaderModel`, `TransformerSentimentModel`, `FineTunedSentimentModel` |
-| `news_sentiment.explain` | Explainability engine | `BaseExplainer`, `IntegratedGradientsExplainer`, token saliency scoring, rationalization tests |
-| `news_sentiment.evaluation`| Empirical evaluation | Faithfulness metrics (erasure, comprehensiveness, sufficiency), classification benchmarks, calibration |
-| `news_sentiment.api` | Web service API | FastAPI routes (`/health`, `/headlines`, `/sentiment`, `/explain`, `/trends`), OpenAPI documentation |
-| `news_sentiment.cli` | Command-line tool | `newsent` Typer CLI: `version`, `ingest`, `predict`, `evaluate`, `serve` |
-| `frontend/` | Web Dashboard | React + TypeScript (Vite), time-series charts, headline explorer, explanation inspector |
-| `scripts/` | Data & evaluation scripts | Reproducible scripts generating all experimental figures and benchmark metrics |
+| `news_sentiment.sources` | Ingestion connectors | `BaseSourceClient`, `GDELTSourceClient`, `RSSSourceClient`, `NewsAPISourceClient`, `IngestionService` |
+| `news_sentiment.storage` | Persistence & schema | SQLAlchemy declarative models (`Article`, `ArticlePrediction`, `ArticleAnnotation`, `Topic`, `IngestionRun`), `TopicRepository`, `ArticleRepository`, Alembic migrations |
+| `news_sentiment.models` | Inference abstraction | `SentimentModel`, `PredictionResult`, `VaderModel`, `HFTransformerModel`, `InferencePipeline`, model registry |
+| `news_sentiment.explain` | Explainability engine | `BaseExplainer`, `OcclusionExplainer`, `IntegratedGradientsExplainer`, `ShapPartitionExplainer`, `ExplanationService` |
+| `news_sentiment.evaluation`| Empirical evaluation | Faithfulness metrics (AOPC deletion/insertion, plausibility token-F1), classification benchmarks, bootstrap CIs, contamination check |
+| `news_sentiment.api` | Web service API | FastAPI routes (`/health`, `/api/v1/health`, `/api/v1/topics`, `/api/v1/analyze`, `/api/v1/explain`, `/api/v1/models`, `/api/v1/jobs/collect-and-analyze`) |
+| `news_sentiment.cli` | Command-line tool | `newsent` Typer CLI: `version`, `collect`, `analyze`, `compare`, `topics`, `label`, `label-agreement`, `explain` |
+| `frontend/` | Web Dashboard | React 19 + TypeScript (Vite), time-series charts, headline explorer, model comparison matrix, explanation heatmap |
+| `scripts/` | Data & evaluation scripts | Reproducible scripts (`evaluate.py`, `faithfulness.py`, `train.py`, `seed_in_domain_data.py`) |
 
 ---
 
@@ -149,23 +146,34 @@ The codebase uses a strict `src/` layout under the root package `news_sentiment`
 To enable fair, rigorous empirical comparison, all sentiment models adhere to a single unified contract:
 
 ```python
-class BaseSentimentModel(ABC):
+class SentimentModel(ABC):
+    @property
     @abstractmethod
-    def predict(self, text: str) -> SentimentOutput:
-        """Return probabilities, discrete sentiment label, and inference metadata."""
+    def name(self) -> str:
+        """Unique model identifier (e.g. 'vader', 'roberta', 'finbert', 'fine_tuned')."""
+        pass
+
+    @property
+    @abstractmethod
+    def version(self) -> str:
+        """Model or checkpoint version."""
         pass
 
     @abstractmethod
-    def batch_predict(self, texts: list[str]) -> list[SentimentOutput]:
-        """Vectorized or batched inference."""
+    def predict(self, texts: list[str]) -> list[PredictionResult]:
+        """Generate sentiment predictions for a batch of texts."""
         pass
+
+    def predict_one(self, text: str) -> PredictionResult:
+        """Convenience method to predict sentiment for a single text."""
+        return self.predict([text])[0]
 ```
 
 ### Models Benchmarked:
-1. **Lexicon Baseline**: VADER (Rule-based lexical sentiment engine).
-2. **Pretrained General Transformer**: RoBERTa fine-tuned on sentiment (e.g., `cardiffnlp/twitter-roberta-base-sentiment-latest`).
-3. **Pretrained Domain Transformer**: FinBERT (Domain-adapted for financial news and market headlines).
-4. **Custom Fine-Tuned Transformer**: Domain-adapted on annotated news headline benchmarks.
+1. **Lexicon Baseline**: VADER (Rule-based lexical sentiment engine with compound score normalization).
+2. **Pretrained General Transformer**: RoBERTa fine-tuned on tweets/social text (`cardiffnlp/twitter-roberta-base-sentiment-latest`).
+3. **Pretrained Domain Transformer**: FinBERT (`ProsusAI/finbert`, domain-adapted for financial news).
+4. **Custom Fine-Tuned Transformer**: DistilRoBERTa fine-tuned on financial sentence benchmarks with domain gap evaluation.
 
 ---
 
@@ -174,22 +182,22 @@ class BaseSentimentModel(ABC):
 Explainability answers *why* a model made a specific prediction. The evaluation pipeline answers *whether that explanation is faithful*.
 
 1. **Attribution Methods**:
-   - Token-level gradient-based saliency and Integrated Gradients.
-   - Attention-weight analysis with appropriate baselines.
-   - Perturbation / Occlusion-based feature importance.
+   - **Leave-One-Out Occlusion**: Token masking with negation-aware delta attribution.
+   - **Integrated Gradients**: Path-integral gradient baselines via Captum for transformer embeddings.
+   - **SHAP Partition Explainer**: Game-theoretic Shapley value estimation using hierarchical text partitioning.
 2. **Faithfulness Benchmarking**:
-   - **Comprehensiveness**: If top attributed tokens are removed, does model confidence drop substantially?
-   - **Sufficiency**: If only top attributed tokens are retained, is model confidence preserved?
-   - **Randomization Tests**: Sanity checks ensuring attributions depend on model parameters rather than arbitrary heuristics.
+   - **Progressive Deletion Curves (AOPC)**: If top attributed tokens are causally important, deleting them progressively causes rapid decay in model confidence. Evaluated against a 10-permutation random-token baseline.
+   - **Progressive Insertion Curves**: Verifies sufficiency when restoring top tokens into neutral baselines.
+   - **Plausibility Agreement**: Token-level F1 comparing model attributions with human rationale annotations.
 
 ---
 
 ## 7. Serving, Deployment, and Quality Assurance
 
-- **API Layer**: FastAPI application exposing asynchronous endpoints, automatic schema generation, and strict Pydantic payload validation.
-- **Frontend Layer**: React + TypeScript powered by Vite, providing responsive charts for temporal topic sentiment and interactive saliency heatmaps.
+- **API Layer**: FastAPI application exposing versioned `/api/v1` asynchronous endpoints, in-memory CPU model preloading at lifespan startup, and strict Pydantic payload validation.
+- **Frontend Layer**: React 19 + TypeScript powered by Vite, providing responsive charts for temporal topic sentiment and interactive saliency heatmaps.
 - **Continuous Integration**: GitHub Actions executing on every pull request and push:
   - Linting & formatting check with `ruff`
   - Strict type checking with `mypy` on `src/news_sentiment`
-  - Test execution and minimum coverage check with `pytest` and `pytest-cov`
-- **Docker Deployment**: Multi-stage Dockerfile packaging the FastAPI application with production Uvicorn workers and static asset serving.
+  - Fast test execution and minimum coverage check with `pytest` and `pytest-cov` (target $\ge 80\%$)
+- **Docker Deployment**: Multi-stage Dockerfile packaging the FastAPI application with CPU-only torch, Uvicorn, and docker-compose for the full local stack.
