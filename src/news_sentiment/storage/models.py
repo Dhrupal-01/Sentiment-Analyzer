@@ -1,6 +1,7 @@
 """SQLAlchemy declarative database models for news sentiment storage."""
 
 from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import (
     JSON,
@@ -67,6 +68,10 @@ class Article(Base):
         cascade="all, delete-orphan",
     )
     annotations: Mapped[list["ArticleAnnotation"]] = relationship(
+        back_populates="article",
+        cascade="all, delete-orphan",
+    )
+    explanations: Mapped[list["ArticleExplanation"]] = relationship(
         back_populates="article",
         cascade="all, delete-orphan",
     )
@@ -197,6 +202,7 @@ class ArticleAnnotation(Base):
         String(20), nullable=False, index=True
     )  # positive, neutral, negative, skip
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    rationale_tokens: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
@@ -215,4 +221,46 @@ class ArticleAnnotation(Base):
         return (
             f"<ArticleAnnotation(id={self.id}, article_id={self.article_id}, "
             f"annotator='{self.annotator_id}', label='{self.label}')>"
+        )
+
+
+class ArticleExplanation(Base):
+    """Cached feature attribution explanation for an article headline."""
+
+    __tablename__ = "article_explanations"
+    __table_args__ = (
+        UniqueConstraint(
+            "article_id",
+            "model_name",
+            "model_version",
+            "method",
+            name="uq_article_model_method_explanation",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    article_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("articles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    model_name: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    model_version: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    method: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
+    prediction_label: Mapped[str] = mapped_column(String(20), nullable=False)
+    prediction_score: Mapped[float] = mapped_column(Float, nullable=False)
+    attributions: Mapped[list[dict[str, Any]]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        nullable=False,
+    )
+
+    article: Mapped["Article"] = relationship(back_populates="explanations")
+
+    def __repr__(self) -> str:
+        return (
+            f"<ArticleExplanation(id={self.id}, article_id={self.article_id}, "
+            f"model='{self.model_name}:{self.model_version}', method='{self.method}')>"
         )

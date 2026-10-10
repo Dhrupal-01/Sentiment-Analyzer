@@ -265,3 +265,51 @@ This document tracks all non-trivial technical and architectural decisions for t
   - Requiring a dedicated paid GPU instance for training: Rejected because free Colab T4 and Kaggle GPUs provide sufficient compute (<15 min).
   - Mocking the training script with unformatted stubs: Rejected because `--dry-run` produces the exact output schema, CSV telemetry, and JSON summaries required by the evaluation pipeline.
 
+---
+
+## ADR-021: Unified Token Attribution Interface and Prediction Score Explanation
+- **Date**: 2026-10-10
+- **Decision**: Define a single unified interface `explain(text, model, method) -> list[TokenAttribution]` where each `TokenAttribution(token, weight)` attributes the model's own continuous prediction score $S(T) \in [-1.0, 1.0]$. Positive weights indicate tokens pushing the score toward $+1.0$; negative weights indicate tokens pulling the score toward $-1.0$. Cache explanations persistently in the database via the `article_explanations` table keyed by `(article_id, model_name, model_version, method)`.
+- **Reasoning**:
+  - Consistent developer and API contract: Downstream consumers (FastAPI routes, React dashboard token highlight spans) consume identical data structures regardless of whether the underlying model is rule-based (VADER) or transformer-based (FinBERT, RoBERTa), and regardless of attribution method (Occlusion, IG, SHAP).
+  - Score fidelity: Attributing the continuous score $P(\text{pos}) - P(\text{neg})$ rather than arbitrary uncalibrated logits ensures weights are directly interpretable and mathematically comparable across models.
+  - Production latency: Generating gradient or coalition attributions during live HTTP requests adds prohibitive latency; database caching guarantees sub-millisecond retrieval.
+- **Alternatives Rejected**:
+  - Method-specific output schemas: Rejected because it forces UI clients to maintain disparate rendering logic for every explainer.
+  - In-memory only caching: Rejected because explanations would be lost across server restarts or process recycling.
+
+---
+
+## ADR-022: Leave-One-Out Occlusion for Lexicons with Rigorous Negation Handling
+- **Date**: 2026-10-10
+- **Decision**: Implement leave-one-out occlusion for lexicon models (VADER) where attribution weight is defined as $w_i = S(\text{full text}) - S(\text{text without token } i)$. Ensure negation structures are correctly attributed: for inverted phrases such as `"not good"` ($S = -0.3412$), the negative delta is assigned to `"not"` ($w_{\text{not}} = -0.7816$) as the active inverter, and `"good"` is never falsely presented as positive ($w_{\text{good}} = -0.3412$).
+- **Reasoning**:
+  - Lexicon transparency: VADER does not possess differentiable weight matrices; perturbation via token ablation directly isolates each word's marginal valence contribution.
+  - Linguistic correctness: Naive dictionary lookups flag `"good"` as positive out of context. Occlusion properly captures contextual modification by evaluating the delta when the modifier is ablated.
+- **Alternatives Rejected**:
+  - Simple dictionary word-lookup attribution: Rejected because it fails to capture VADER's compound modifiers, contrastive conjunctions (`"but"`), and negation flips.
+
+---
+
+## ADR-023: Dual Transformer Explainers: Captum Integrated Gradients and SHAP Partitioning
+- **Date**: 2026-10-10
+- **Decision**: Implement both Integrated Gradients (via `captum.attr.LayerIntegratedGradients` on input word embeddings) and SHAP (via `shap.explainers.PartitionExplainer` over text coalitions) for transformer models. Provide deterministic fallback algorithms (path-integral Riemann approximation and hierarchical partition Shapley calculation) when GPU or heavyweight dependencies are absent.
+- **Reasoning**:
+  - Axiomatic comparison: Integrated Gradients guarantees Completeness and Implementation Invariance; SHAP satisfies Efficiency, Symmetry, and Additivity. Comparing both allows empirical assessment of whether gradient-based and game-theoretic methods converge on identical salient tokens in news headlines.
+  - Offline testability: Allowing deterministic path-integral and coalition approximations enables 100% CI test coverage without requiring massive PyTorch/CUDA wheels in lightweight environments.
+- **Alternatives Rejected**:
+  - Implementing only one explainer: Rejected because evaluating agreement across fundamentally different axiomatic frameworks is a primary research requirement.
+  - Vanilla input gradients ($x \cdot \nabla_x$): Rejected due to gradient saturation issues in deep networks.
+
+---
+
+## ADR-024: AOPC Faithfulness Perturbation Curves and Plausibility Human Rationale Evaluation
+- **Date**: 2026-10-10
+- **Decision**: Evaluate explanation faithfulness using progressive token deletion and insertion curves with Area Over the Perturbation Curve (AOPC) over 5 steps, benchmarked against a 10-permutation random-token baseline. Evaluate plausibility by calculating token-level Precision, Recall, and F1 against a gold-standard dataset of 100 human-annotated headline rationales (`data/benchmarks/human_rationales.jsonl`). Measure inter-method and inter-model agreement via top-3 token Jaccard similarity.
+- **Reasoning**:
+  - Faithfulness rigor: A feature attribution method is only faithful if removing the most important tokens degrades model confidence significantly faster than removing tokens at random ($\Delta_{\text{AOPC}} > 0$).
+  - Plausibility grounding: High faithfulness does not guarantee human intelligibility. Comparing top-$k$ tokens against professional human annotators quantifies alignment with human journalistic reasoning.
+  - Agreement quantification: Measuring top-3 Jaccard overlap tests whether different explainers identify the same rationale tokens or produce conflicting explanations.
+- **Alternatives Rejected**:
+  - Evaluating only insertion or only deletion: Rejected because deletion can introduce out-of-distribution sentence fragments; evaluating both insertion and deletion provides balanced verification.
+  - Qualitative visual inspection without metrics: Rejected because anecdotal cherry-picking masks systematic attribution degradation.

@@ -68,12 +68,17 @@ def ensure_financial_phrasebank(
             "test": test_file,
         }
 
-    # 1. Download raw file if not present
+    # 1. Download raw file if not present (checking local repo file first)
     if not raw_file.exists():
-        req = urllib.request.Request(FPB_RAW_URL, headers={"User-Agent": "NewsSentiment/0.1.0"})
-        with urllib.request.urlopen(req) as resp:
-            content = resp.read()
-        raw_file.write_bytes(content)
+        repo_raw = Path("data/benchmarks/financial_phrasebank/raw/Sentences_AllAgree.txt")
+        if repo_raw.exists():
+            content = repo_raw.read_bytes()
+            raw_file.write_bytes(content)
+        else:
+            req = urllib.request.Request(FPB_RAW_URL, headers={"User-Agent": "NewsSentiment/0.1.0"})
+            with urllib.request.urlopen(req) as resp:
+                content = resp.read()
+            raw_file.write_bytes(content)
     else:
         content = raw_file.read_bytes()
 

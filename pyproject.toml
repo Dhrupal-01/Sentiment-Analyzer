@@ -39,6 +39,10 @@ ml = [
     "transformers>=4.40.0",
     "torch>=2.0.0",
 ]
+explain = [
+    "captum>=0.7.0",
+    "shap>=0.45.0",
+]
 
 [project.scripts]
 newsent = "news_sentiment.cli:app"
@@ -86,6 +90,8 @@ module = [
     "vaderSentiment.*",
     "transformers.*",
     "torch.*",
+    "captum.*",
+    "shap.*",
 ]
 ignore_missing_imports = true
 

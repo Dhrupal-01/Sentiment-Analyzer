@@ -2,6 +2,7 @@
 
 import random
 from datetime import UTC, datetime
+from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -11,6 +12,7 @@ from news_sentiment.storage.models import (
     Article,
     ArticleAnnotation,
     ArticleDuplicate,
+    ArticleExplanation,
     IngestionRun,
     Topic,
 )
@@ -171,6 +173,7 @@ class AnnotationRepository:
         annotator_id: str,
         label: str,
         notes: str | None = None,
+        rationale_tokens: list[str] | None = None,
     ) -> ArticleAnnotation:
         """Create or update a human annotation for an article."""
         existing = session.scalar(
@@ -182,6 +185,8 @@ class AnnotationRepository:
         if existing:
             existing.label = label
             existing.notes = notes
+            if rationale_tokens is not None:
+                existing.rationale_tokens = rationale_tokens
             existing.updated_at = datetime.now(UTC)
             session.flush()
             return existing
@@ -191,6 +196,7 @@ class AnnotationRepository:
             annotator_id=annotator_id,
             label=label,
             notes=notes,
+            rationale_tokens=rationale_tokens,
         )
         session.add(annotation)
         session.flush()
@@ -276,3 +282,82 @@ class AnnotationRepository:
 
         common_ids = sorted(set(annos_1.keys()) & set(annos_2.keys()))
         return [(annos_1[cid], annos_2[cid]) for cid in common_ids]
+
+
+class ExplanationRepository:
+    """Operations on cached token attribution explanations."""
+
+    @staticmethod
+    def save_explanation(
+        session: Session,
+        article_id: int,
+        model_name: str,
+        model_version: str,
+        method: str,
+        prediction_label: str,
+        prediction_score: float,
+        attributions: list[dict[str, Any]],
+    ) -> ArticleExplanation:
+        """Create or update a cached explanation for an article prediction."""
+        existing = session.scalar(
+            select(ArticleExplanation).where(
+                (ArticleExplanation.article_id == article_id)
+                & (ArticleExplanation.model_name == model_name)
+                & (ArticleExplanation.model_version == model_version)
+                & (ArticleExplanation.method == method)
+            )
+        )
+        if existing:
+            existing.prediction_label = prediction_label
+            existing.prediction_score = prediction_score
+            existing.attributions = attributions
+            session.flush()
+            return existing
+
+        explanation = ArticleExplanation(
+            article_id=article_id,
+            model_name=model_name,
+            model_version=model_version,
+            method=method,
+            prediction_label=prediction_label,
+            prediction_score=prediction_score,
+            attributions=attributions,
+        )
+        session.add(explanation)
+        session.flush()
+        return explanation
+
+    @staticmethod
+    def get_explanation(
+        session: Session,
+        article_id: int,
+        model_name: str,
+        model_version: str,
+        method: str,
+    ) -> ArticleExplanation | None:
+        """Retrieve a specific cached explanation."""
+        return session.scalar(
+            select(ArticleExplanation).where(
+                (ArticleExplanation.article_id == article_id)
+                & (ArticleExplanation.model_name == model_name)
+                & (ArticleExplanation.model_version == model_version)
+                & (ArticleExplanation.method == method)
+            )
+        )
+
+    @staticmethod
+    def list_explanations(
+        session: Session,
+        article_id: int | None = None,
+        model_name: str | None = None,
+        method: str | None = None,
+    ) -> list[ArticleExplanation]:
+        """Query cached explanations with optional filters."""
+        stmt = select(ArticleExplanation).order_by(ArticleExplanation.id.asc())
+        if article_id is not None:
+            stmt = stmt.where(ArticleExplanation.article_id == article_id)
+        if model_name is not None:
+            stmt = stmt.where(ArticleExplanation.model_name == model_name)
+        if method is not None:
+            stmt = stmt.where(ArticleExplanation.method == method)
+        return list(session.scalars(stmt).all())

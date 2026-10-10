@@ -11,6 +11,7 @@ from news_sentiment.storage.models import (
     Article,
     ArticleAnnotation,
     ArticleDuplicate,
+    ArticleExplanation,
     Base,
     IngestionRun,
     Prediction,
@@ -19,6 +20,7 @@ from news_sentiment.storage.models import (
 from news_sentiment.storage.repository import (
     AnnotationRepository,
     ArticleRepository,
+    ExplanationRepository,
     IngestionRunRepository,
     TopicRepository,
 )
@@ -28,8 +30,10 @@ __all__ = [
     "Article",
     "ArticleAnnotation",
     "ArticleDuplicate",
+    "ArticleExplanation",
     "ArticleRepository",
     "Base",
+    "ExplanationRepository",
     "IngestionRun",
     "IngestionRunRepository",
     "Prediction",

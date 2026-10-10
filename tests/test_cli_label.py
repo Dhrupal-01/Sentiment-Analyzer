@@ -40,12 +40,13 @@ def test_cli_label_flow(monkeypatch: pytest.MonkeyPatch) -> None:
 
         # Simulate user inputs:
         # 1. 'p' (positive sentiment)
-        # 2. 'Strong expansion note'
-        # 3. 'q' (quit)
+        # 2. 'jump' (rationale words)
+        # 3. 'Strong expansion note' (notes)
+        # 4. 'q' (quit)
         result = runner.invoke(
             app,
             ["label", "--annotator", "test_user", "--limit", "10"],
-            input="p\nStrong expansion note\nq\n",
+            input="p\njump\nStrong expansion note\nq\n",
         )
         assert result.exit_code == 0
         assert "Loaded 1 candidate headline(s)" in result.output
@@ -60,6 +61,7 @@ def test_cli_label_flow(monkeypatch: pytest.MonkeyPatch) -> None:
             assert anno is not None
             assert anno.label == "positive"
             assert anno.notes == "Strong expansion note"
+            assert anno.rationale_tokens == ["jump"]
 
         # Running again shows no unannotated headlines
         result_empty = runner.invoke(app, ["label", "--annotator", "test_user"])

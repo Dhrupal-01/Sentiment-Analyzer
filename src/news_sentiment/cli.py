@@ -425,6 +425,15 @@ def label_cmd(
             }
             assigned_label = label_map[choice]
 
+            rationale_tokens: list[str] | None = None
+            if assigned_label != "skip":
+                rat_input = typer.prompt(
+                    "Rationale words/tokens (comma-separated, press Enter to skip)",
+                    default="",
+                ).strip()
+                if rat_input:
+                    rationale_tokens = [tok.strip() for tok in rat_input.split(",") if tok.strip()]
+
             notes_input = typer.prompt("Notes (optional, press Enter to skip)", default="").strip()
             notes = notes_input if notes_input else None
 
@@ -434,10 +443,12 @@ def label_cmd(
                 annotator_id=annotator,
                 label=assigned_label,
                 notes=notes,
+                rationale_tokens=rationale_tokens,
             )
             session.commit()
             labeled_count += 1
-            typer.echo(f"Saved: '{assigned_label}'")
+            rat_msg = f" (rationales: {', '.join(rationale_tokens)})" if rationale_tokens else ""
+            typer.echo(f"Saved: '{assigned_label}'{rat_msg}")
 
         typer.echo(f"\nCompleted session! Total labeled: {labeled_count}.")
 

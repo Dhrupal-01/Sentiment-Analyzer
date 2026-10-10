@@ -34,6 +34,9 @@ test:
 eval:
 	$(PYTHON) scripts/evaluate.py
 
+explain:
+	$(PYTHON) scripts/faithfulness.py
+
 run-api:
 	$(BIN)uvicorn news_sentiment.api.main:app --host 127.0.0.1 --port 8000 --reload
 

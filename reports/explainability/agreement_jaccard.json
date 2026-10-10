@@ -1,0 +1,62 @@
+{
+  "inter_method_agreement": {
+    "vader": {
+      "occlusion_vs_occlusion": 1.0,
+      "occlusion_vs_integrated_gradients": 0.9833,
+      "occlusion_vs_shap": 0.9733,
+      "integrated_gradients_vs_integrated_gradients": 1.0,
+      "integrated_gradients_vs_shap": 0.99,
+      "shap_vs_shap": 1.0
+    },
+    "roberta": {
+      "occlusion_vs_occlusion": 1.0,
+      "occlusion_vs_integrated_gradients": 1.0,
+      "occlusion_vs_shap": 1.0,
+      "integrated_gradients_vs_integrated_gradients": 1.0,
+      "integrated_gradients_vs_shap": 1.0,
+      "shap_vs_shap": 1.0
+    },
+    "finbert": {
+      "occlusion_vs_occlusion": 1.0,
+      "occlusion_vs_integrated_gradients": 1.0,
+      "occlusion_vs_shap": 1.0,
+      "integrated_gradients_vs_integrated_gradients": 1.0,
+      "integrated_gradients_vs_shap": 1.0,
+      "shap_vs_shap": 1.0
+    },
+    "fine_tuned": {
+      "occlusion_vs_occlusion": 1.0,
+      "occlusion_vs_integrated_gradients": 1.0,
+      "occlusion_vs_shap": 1.0,
+      "integrated_gradients_vs_integrated_gradients": 1.0,
+      "integrated_gradients_vs_shap": 1.0,
+      "shap_vs_shap": 1.0
+    }
+  },
+  "inter_model_agreement": {
+    "occlusion": {
+      "vader_vs_roberta": 0.644,
+      "vader_vs_finbert": 0.656,
+      "vader_vs_fine_tuned": 0.656,
+      "roberta_vs_finbert": 0.924,
+      "roberta_vs_fine_tuned": 0.924,
+      "finbert_vs_fine_tuned": 1.0
+    },
+    "integrated_gradients": {
+      "vader_vs_roberta": 0.6557,
+      "vader_vs_finbert": 0.6727,
+      "vader_vs_fine_tuned": 0.6727,
+      "roberta_vs_finbert": 0.924,
+      "roberta_vs_fine_tuned": 0.924,
+      "finbert_vs_fine_tuned": 1.0
+    },
+    "shap": {
+      "vader_vs_roberta": 0.659,
+      "vader_vs_finbert": 0.676,
+      "vader_vs_fine_tuned": 0.676,
+      "roberta_vs_finbert": 0.924,
+      "roberta_vs_fine_tuned": 0.924,
+      "finbert_vs_fine_tuned": 1.0
+    }
+  }
+}
