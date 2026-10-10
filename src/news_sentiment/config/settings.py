@@ -103,6 +103,17 @@ class Settings(BaseSettings):
         ],
         description="Default list of publisher RSS feed URLs for ingestion",
     )
+    active_models: list[str] | None = Field(
+        default=None,
+        description=(
+            "Optional list of active model names to preload "
+            "(e.g. ['vader'] for memory-tight environments)"
+        ),
+    )
+    cron_api_key: str | None = Field(
+        default=None,
+        description="Secret key required to invoke protected scheduled job endpoints",
+    )
 
 
 @lru_cache(maxsize=1)

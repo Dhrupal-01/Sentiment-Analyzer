@@ -38,3 +38,6 @@ export type ModelExplainabilityMetrics = Schemas['ModelExplainabilityMetrics'];
 export type HealthResponse = Schemas['HealthResponse'];
 export type ErrorResponse = Schemas['ErrorResponse'];
 export type ErrorDetail = Schemas['ErrorDetail'];
+
+export type JobCollectAndAnalyzeRequest = Schemas['JobCollectAndAnalyzeRequest'];
+export type JobCollectAndAnalyzeResponse = Schemas['JobCollectAndAnalyzeResponse'];

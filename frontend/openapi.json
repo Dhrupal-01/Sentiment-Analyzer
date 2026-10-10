@@ -698,6 +698,82 @@
         }
       }
     },
+    "/api/v1/jobs/collect-and-analyze": {
+      "post": {
+        "tags": [
+          "Jobs & Automation"
+        ],
+        "summary": "Trigger scheduled collection and model analysis",
+        "description": "Ingest fresh headlines for active topics and run model inference on unprocessed articles.",
+        "operationId": "run_collect_and_analyze_job_api_v1_jobs_collect_and_analyze_post",
+        "parameters": [
+          {
+            "name": "X-API-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Api-Key"
+            }
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JobCollectAndAnalyzeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobCollectAndAnalyzeResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/health": {
       "get": {
         "tags": [
@@ -1233,6 +1309,101 @@
         ],
         "title": "HealthResponse",
         "description": "System health, environment info, and runtime dependency status."
+      },
+      "JobCollectAndAnalyzeRequest": {
+        "properties": {
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "News provider source ('gdelt', 'rss', or 'newsapi')",
+            "default": "gdelt"
+          },
+          "limit_per_topic": {
+            "type": "integer",
+            "maximum": 200.0,
+            "minimum": 1.0,
+            "title": "Limit Per Topic",
+            "description": "Max articles to fetch per topic",
+            "default": 50
+          },
+          "models": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Models",
+            "description": "Models to run inference for unprocessed headlines"
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topic",
+            "description": "Optional specific topic filter"
+          }
+        },
+        "type": "object",
+        "title": "JobCollectAndAnalyzeRequest",
+        "description": "Parameters for scheduled headline collection and batch inference."
+      },
+      "JobCollectAndAnalyzeResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Job execution status ('completed' or 'partial')"
+          },
+          "topics_processed": {
+            "type": "integer",
+            "title": "Topics Processed",
+            "description": "Number of topics collected"
+          },
+          "articles_fetched": {
+            "type": "integer",
+            "title": "Articles Fetched",
+            "description": "Total articles fetched across all topics"
+          },
+          "articles_inserted": {
+            "type": "integer",
+            "title": "Articles Inserted",
+            "description": "New unique articles inserted into storage"
+          },
+          "duplicates_found": {
+            "type": "integer",
+            "title": "Duplicates Found",
+            "description": "Duplicate headlines detected and recorded"
+          },
+          "articles_scored": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Articles Scored",
+            "description": "Articles scored mapped by model name"
+          },
+          "elapsed_seconds": {
+            "type": "number",
+            "title": "Elapsed Seconds",
+            "description": "Total wall-clock duration of the job run"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "topics_processed",
+          "articles_fetched",
+          "articles_inserted",
+          "duplicates_found",
+          "articles_scored",
+          "elapsed_seconds"
+        ],
+        "title": "JobCollectAndAnalyzeResponse",
+        "description": "Execution summary report for scheduled collection and analysis job."
       },
       "ModelEvaluationMetrics": {
         "properties": {

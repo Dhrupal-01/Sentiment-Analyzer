@@ -54,6 +54,23 @@ class BadRequestError(APIException):
         )
 
 
+class UnauthorizedError(APIException):
+    """Authentication or authorization failure exception (HTTP 401)."""
+
+    def __init__(
+        self,
+        message: str = "Invalid or missing API key authorization.",
+        details: Any = None,
+    ) -> None:
+        super().__init__(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            code="UNAUTHORIZED",
+            message=message,
+            details=details,
+            headers={"WWW-Authenticate": "ApiKey"},
+        )
+
+
 class RateLimitExceededError(APIException):
     """Rate limit exceeded exception (HTTP 429)."""
 

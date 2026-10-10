@@ -105,4 +105,33 @@ describe('NewsSentimentApiClient', () => {
     expect(res.texts_count).toBe(1);
     expect(res.results[0].predictions.vader.label).toBe('positive');
   });
+
+  it('triggers collect and analyze background job with api key header', async () => {
+    const mockJobResp = {
+      status: 'completed',
+      topics_processed: 2,
+      articles_fetched: 20,
+      articles_inserted: 18,
+      duplicates_found: 2,
+      articles_scored: { vader: 18 },
+      elapsed_seconds: 1.42,
+    };
+
+    let capturedHeaders: Record<string, string> = {};
+    globalThis.fetch = vi.fn().mockImplementation((_url, init) => {
+      capturedHeaders = init?.headers || {};
+      return Promise.resolve({
+        ok: true,
+        json: async () => mockJobResp,
+      } as Response);
+    });
+
+    const res = await client.triggerCollectAndAnalyzeJob(
+      { source: 'gdelt', limit_per_topic: 10, models: ['vader'] },
+      'test-cron-key-123'
+    );
+    expect(res.status).toBe('completed');
+    expect(res.articles_inserted).toBe(18);
+    expect(capturedHeaders['X-API-Key']).toBe('test-cron-key-123');
+  });
 });

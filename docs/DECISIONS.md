@@ -355,3 +355,17 @@ This document tracks all non-trivial technical and architectural decisions for t
   - **Hand-Written API Type Definitions**: Rejected because manual API schemas drift over time, causing runtime bugs when backend response schemas evolve.
   - **Client-Side Mocking Only**: Rejected in favor of an active reverse-proxy configuration (`vite.config.ts`) connecting seamlessly to the local FastAPI backend (`http://localhost:8000`).
 
+---
+
+## ADR-028: Multi-Stage Containerization with CPU-Only PyTorch and Protected Scheduling Protocol
+- **Date**: 2026-10-10
+- **Decision**: Containerize backend and frontend services using multi-stage Docker builds. The backend image installs CPU-only PyTorch wheels from the official PyTorch CPU wheel repository (`https://download.pytorch.org/whl/cpu`), drastically trimming image size by over 2.5 GB compared to default CUDA wheels. The frontend compiles via Node 20 to static artifacts served by an Nginx reverse-proxy container. Provide a hybrid scheduled collection mechanism: a standalone shell runner (`scripts/scheduled_collection.sh`) for host crons and a protected API endpoint (`POST /api/v1/jobs/collect-and-analyze`) authorized by `X-API-Key` or `Authorization: Bearer` for remote CI/CD schedulers. Add runtime memory configuration (`ACTIVE_MODELS`) to allow deployments on 512 MB RAM free tiers without OOM crashes while recommending Hugging Face Spaces (16 GB free RAM) for full multi-model inference.
+- **Reasoning**:
+  - **Container Footprint & Network Efficiency**: Shipping 2.5+ GB of unused CUDA driver binaries in CPU production environments wastes bandwidth, disk space, and deployment time. CPU-only wheels yield a lightweight runtime (~350 MB image).
+  - **Scheduling Versatility**: Supporting both local CLI execution and remote protected HTTP endpoints allows ingestion to run on either GitHub Actions cron schedules, self-hosted Linux crontab, or cloud serverless schedulers.
+  - **Cloud Hosting Resilience**: Preloading RoBERTa, FinBERT, and DistilRoBERTa simultaneously consumes ~1.6 GB RAM. Exposing `ACTIVE_MODELS` enables zero-cost deployments on 512 MB free-tier clouds (e.g. Render) without out-of-memory crashes.
+- **Alternatives Rejected**:
+  - **Shipping GPU PyTorch in Production Containers**: Rejected due to prohibitive 3+ GB image bloat for CPU-based inference nodes.
+  - **Unauthenticated Cron Endpoints**: Rejected because exposing database ingestion and batch inference publicly allows arbitrary Denial-of-Service attacks.
+  - **Requiring Cloud Schedulers Exclusively**: Rejected because users operating local development environments or isolated servers need simple crontab and CLI capabilities.
+

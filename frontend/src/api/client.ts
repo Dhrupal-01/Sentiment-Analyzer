@@ -8,6 +8,8 @@ import type {
   ExplainRequest,
   ExplainResponse,
   HealthResponse,
+  JobCollectAndAnalyzeRequest,
+  JobCollectAndAnalyzeResponse,
   ModelsRegistryResponse,
   PaginatedHeadlinesResponse,
   TopicCreateRequest,
@@ -200,6 +202,24 @@ export class NewsSentimentApiClient {
   async explain(payload: ExplainRequest): Promise<ExplainResponse> {
     return this.request<ExplainResponse>('/api/v1/explain', {
       method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  /**
+   * Trigger scheduled background headline collection and model inference job.
+   */
+  async triggerCollectAndAnalyzeJob(
+    payload: Partial<JobCollectAndAnalyzeRequest> = {},
+    apiKey?: string
+  ): Promise<JobCollectAndAnalyzeResponse> {
+    const headers: Record<string, string> = {};
+    if (apiKey) {
+      headers['X-API-Key'] = apiKey;
+    }
+    return this.request<JobCollectAndAnalyzeResponse>('/api/v1/jobs/collect-and-analyze', {
+      method: 'POST',
+      headers,
       body: JSON.stringify(payload),
     });
   }

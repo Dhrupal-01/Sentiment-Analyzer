@@ -1,0 +1,63 @@
+name: Daily Headline Collection & Inference
+
+on:
+  schedule:
+    # Run every day at 06:00 UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'News source provider (gdelt, rss, or newsapi)'
+        required: false
+        default: 'gdelt'
+      limit:
+        description: 'Article limit per topic'
+        required: false
+        default: '50'
+
+jobs:
+  scheduled-job:
+    name: Run Daily Collection & Inference
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Remote Protected API Endpoint (if configured)
+        if: "${{ env.API_BASE_URL != '' }}"
+        env:
+          API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          CRON_API_KEY: ${{ secrets.CRON_API_KEY }}
+        run: |
+          echo "Calling deployed API protected endpoint at ${API_BASE_URL}..."
+          curl -sS -X POST "${API_BASE_URL}/api/v1/jobs/collect-and-analyze" \
+            -H "Content-Type: application/json" \
+            -H "X-API-Key: ${CRON_API_KEY}" \
+            -d '{"source": "gdelt", "limit_per_topic": 50, "models": ["vader"]}'
+
+      - name: Checkout Repository (Standalone Runner Fallback)
+        if: "${{ env.API_BASE_URL == '' }}"
+        uses: actions/checkout@v4
+        with:
+          env:
+            API_BASE_URL: ${{ secrets.API_BASE_URL }}
+
+      - name: Set up Python 3.11
+        if: "${{ env.API_BASE_URL == '' }}"
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        if: "${{ env.API_BASE_URL == '' }}"
+        run: |
+          python -m pip install --upgrade pip
+          pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e "."
+
+      - name: Execute Collection and Inference Pipeline
+        if: "${{ env.API_BASE_URL == '' }}"
+        env:
+          NEWS_SOURCE: ${{ github.event.inputs.source || 'gdelt' }}
+          COLLECTION_LIMIT: ${{ github.event.inputs.limit || '50' }}
+          ACTIVE_MODELS: 'vader'
+        run: |
+          ./scripts/scheduled_collection.sh

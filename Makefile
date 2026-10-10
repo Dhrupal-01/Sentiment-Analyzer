@@ -1,4 +1,4 @@
-.PHONY: help install lint format test eval run-api frontend-install frontend-test frontend-lint frontend-build clean
+.PHONY: help install lint format test eval run-api frontend-install frontend-test frontend-lint frontend-build docker-build docker-up docker-down clean
 
 VENV ?= .venv
 PYTHON ?= $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,$(shell which python3))
@@ -15,6 +15,9 @@ help:
 	@echo "  make frontend-test   Run frontend Vitest component tests"
 	@echo "  make frontend-lint   Run frontend ESLint checks"
 	@echo "  make frontend-build  Build frontend production bundle"
+	@echo "  make docker-build    Build Docker container images"
+	@echo "  make docker-up       Run full stack via Docker Compose"
+	@echo "  make docker-down     Stop Docker Compose stack"
 	@echo "  make clean           Remove cache files and build artifacts"
 
 install:
@@ -54,6 +57,15 @@ frontend-lint:
 
 frontend-build:
 	cd frontend && npm run build
+
+docker-build:
+	docker compose build
+
+docker-up:
+	docker compose up -d
+
+docker-down:
+	docker compose down
 
 clean:
 	rm -rf build dist *.egg-info .pytest_cache .ruff_cache .mypy_cache .coverage htmlcov coverage.xml

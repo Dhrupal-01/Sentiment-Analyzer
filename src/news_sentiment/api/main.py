@@ -23,10 +23,13 @@ from news_sentiment.storage.database import init_db
 logger = get_logger(__name__)
 
 
-def preload_registered_models() -> dict[str, SentimentModel]:
+def preload_registered_models(
+    model_names: list[str] | None = None,
+) -> dict[str, SentimentModel]:
     """Preload sentiment models into memory once at application startup for CPU inference."""
     loaded: dict[str, SentimentModel] = {}
-    for name in list_models():
+    target_names = model_names if model_names is not None else list_models()
+    for name in target_names:
         try:
             model = get_model(name)
             # Warm up model prediction pipeline
@@ -71,7 +74,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     )
 
     # 3. Preload all registered models once at startup (CPU inference)
-    preloaded = preload_registered_models()
+    preloaded = preload_registered_models(settings.active_models)
     app.state.models = preloaded
     logger.info("Completed startup model preloading: %s", list(preloaded.keys()))
 

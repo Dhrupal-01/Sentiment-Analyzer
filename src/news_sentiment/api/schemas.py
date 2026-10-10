@@ -352,3 +352,36 @@ class HealthResponse(BaseModel):
     environment: str = Field(..., description="Active execution environment")
     database: str = Field(..., description="Database connection health ('connected' or 'error')")
     models_loaded: list[str] = Field(..., description="List of preloaded sentiment models")
+
+
+# ---------------------------------------------------------------------------
+# Scheduled Collection & Analysis Job Schemas (Phase 8)
+# ---------------------------------------------------------------------------
+
+
+class JobCollectAndAnalyzeRequest(BaseModel):
+    """Parameters for scheduled headline collection and batch inference."""
+
+    source: str = Field(
+        default="gdelt", description="News provider source ('gdelt', 'rss', or 'newsapi')"
+    )
+    limit_per_topic: int = Field(
+        default=50, ge=1, le=200, description="Max articles to fetch per topic"
+    )
+    models: list[str] = Field(
+        default_factory=lambda: ["vader"],
+        description="Models to run inference for unprocessed headlines",
+    )
+    topic: str | None = Field(default=None, description="Optional specific topic filter")
+
+
+class JobCollectAndAnalyzeResponse(BaseModel):
+    """Execution summary report for scheduled collection and analysis job."""
+
+    status: str = Field(..., description="Job execution status ('completed' or 'partial')")
+    topics_processed: int = Field(..., description="Number of topics collected")
+    articles_fetched: int = Field(..., description="Total articles fetched across all topics")
+    articles_inserted: int = Field(..., description="New unique articles inserted into storage")
+    duplicates_found: int = Field(..., description="Duplicate headlines detected and recorded")
+    articles_scored: dict[str, int] = Field(..., description="Articles scored mapped by model name")
+    elapsed_seconds: float = Field(..., description="Total wall-clock duration of the job run")

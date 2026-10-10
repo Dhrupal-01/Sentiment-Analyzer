@@ -1,5 +1,4 @@
-"""Comprehensive integration tests for all News Sentiment Analyzer FastAPI endpoints."""
-
+from collections.abc import Generator
 from datetime import UTC, datetime
 
 from fastapi import status
@@ -7,9 +6,10 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
+from news_sentiment.api.dependencies import get_db
 from news_sentiment.api.main import create_app
 from news_sentiment.api.rate_limit import SimpleRateLimiter, get_rate_limiter
-from news_sentiment.config.settings import Settings
+from news_sentiment.config.settings import Settings, get_settings
 from news_sentiment.storage.models import Article, Prediction, Topic
 
 
@@ -470,3 +470,68 @@ def test_consistent_error_envelope_on_404(client: TestClient) -> None:
     assert "error" in data
     assert data["error"]["code"] == "NOT_FOUND"
     assert "message" in data["error"]
+
+
+def test_jobs_collect_and_analyze_endpoint(client: TestClient) -> None:
+    """Verify POST /api/v1/jobs/collect-and-analyze executes collection and model scoring."""
+    topic_payload = {"name": "Energy", "query": "oil gas energy", "is_active": True}
+    create_resp = client.post("/api/v1/topics", json=topic_payload)
+    assert create_resp.status_code == status.HTTP_201_CREATED
+
+    job_payload = {
+        "source": "rss",
+        "limit_per_topic": 5,
+        "models": ["vader"],
+        "topic": "Energy",
+    }
+    resp = client.post("/api/v1/jobs/collect-and-analyze", json=job_payload)
+    assert resp.status_code == status.HTTP_200_OK
+    data = resp.json()
+    assert data["status"] == "completed"
+    assert data["topics_processed"] == 1
+    assert "articles_fetched" in data
+    assert "articles_scored" in data
+    assert "vader" in data["articles_scored"]
+    assert data["elapsed_seconds"] >= 0
+
+
+def test_jobs_auth_protection(test_engine: Engine) -> None:
+    """Verify jobs endpoint enforces API key authorization when configured."""
+    settings = Settings(
+        environment="production",
+        cron_api_key="secret-token-12345",
+        database_url="sqlite:///:memory:",
+    )
+    app = create_app(settings=settings)
+
+    def override_get_db() -> Generator[Session, None, None]:
+        with Session(test_engine) as session:
+            yield session
+            session.commit()
+
+    app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_settings] = lambda: settings
+
+    with TestClient(app) as auth_client:
+        payload = {"models": ["vader"]}
+
+        # 1. Missing header in production with cron_api_key
+        r1 = auth_client.post("/api/v1/jobs/collect-and-analyze", json=payload)
+        assert r1.status_code == status.HTTP_401_UNAUTHORIZED
+        assert r1.json()["error"]["code"] == "UNAUTHORIZED"
+
+        # 2. Invalid header
+        r2 = auth_client.post(
+            "/api/v1/jobs/collect-and-analyze",
+            json=payload,
+            headers={"X-API-Key": "wrong-token"},
+        )
+        assert r2.status_code == status.HTTP_401_UNAUTHORIZED
+
+        # 3. Valid X-API-Key
+        r3 = auth_client.post(
+            "/api/v1/jobs/collect-and-analyze",
+            json=payload,
+            headers={"X-API-Key": "secret-token-12345"},
+        )
+        assert r3.status_code == status.HTTP_200_OK
