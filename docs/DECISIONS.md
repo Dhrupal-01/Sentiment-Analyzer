@@ -340,3 +340,18 @@ This document tracks all non-trivial technical and architectural decisions for t
   - Lazy loading models on first request: Rejected because end users would experience sporadic multi-second request timeouts.
   - Caching explanations only in memory: Rejected because stored article explanations would vanish upon server reboot or worker restart.
 
+---
+
+## ADR-027: Vite + React 19 + TypeScript Dashboard with OpenAPI Codegen and Vanilla CSS Design System
+- **Date**: 2026-10-10
+- **Decision**: Implement the dashboard frontend in `frontend/` using Vite, React 19, and TypeScript. Generate TypeScript types directly from the FastAPI backend's OpenAPI specification via `openapi-typescript`. Build an ergonomically typed API client (`NewsSentimentApiClient`) with unified error handling for the backend's standard error envelopes. Implement a modern Vanilla CSS design system featuring curated dark-mode glassmorphism tokens, glowing accents, and shimmer skeletons. Visualize sentiment distribution, volume/score time-series trends, and token attributions using Recharts. Ensure test coverage with Vitest and React Testing Library, formatted with Prettier and ESLint.
+- **Reasoning**:
+  - **Type Safety & Contract Guarantee**: Generating `src/api/schema.d.ts` from `openapi.json` guarantees end-to-end type safety between FastAPI Pydantic schemas and React component state, completely eliminating manual schema duplication and silent drift.
+  - **Aesthetics & Performance**: A bespoke Vanilla CSS design system delivers responsive dark-mode layouts, glowing micro-animations, and instant compilation (<300ms) with zero runtime CSS overhead or utility-class clutter.
+  - **Resilient UX Contract**: Enforcing loading skeletons, empty state prompts, and retryable error alerts across all 5 pages ensures an intuitive experience regardless of backend network latency or empty database states.
+  - **Explainability & Model Transparency**: The interactive token highlighter with scaled opacity and method toggles (Occlusion, Integrated Gradients, SHAP) alongside the model agreement matrix brings ML interpretability directly to non-technical users.
+- **Alternatives Rejected**:
+  - **TailwindCSS or Heavy Component Libraries (MUI/AntD)**: Rejected to preserve full styling control, minimize bundle footprint, and honor project constraints favoring Vanilla CSS.
+  - **Hand-Written API Type Definitions**: Rejected because manual API schemas drift over time, causing runtime bugs when backend response schemas evolve.
+  - **Client-Side Mocking Only**: Rejected in favor of an active reverse-proxy configuration (`vite.config.ts`) connecting seamlessly to the local FastAPI backend (`http://localhost:8000`).
+

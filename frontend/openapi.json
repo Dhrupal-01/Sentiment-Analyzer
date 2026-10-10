@@ -1,0 +1,1813 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "News Sentiment Analyzer",
+    "description": "Production-quality News Sentiment Analyzer API: collect headlines, classify sentiment with multi-model inference, explain predictions with token attributions, and track thematic sentiment trends over time.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "System health and liveness probe",
+        "description": "Check API service availability, runtime environment, DB connectivity, and models.",
+        "operationId": "get_health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyze": {
+      "post": {
+        "tags": [
+          "Sentiment Analysis"
+        ],
+        "summary": "Classify sentiment for one or more headlines",
+        "description": "Classify sentiment polarity (score in [-1.0, 1.0]) and class probabilities (positive, neutral, negative) across one or more news headlines using selected models. Supports batch evaluation up to 50 items.",
+        "operationId": "analyze_headlines_api_v1_analyze_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid model selection",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error on input texts or limits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/explain": {
+      "post": {
+        "tags": [
+          "Explainability"
+        ],
+        "summary": "Generate token attributions explaining a prediction score",
+        "description": "Compute signed feature attribution weights in [-1.0, 1.0] explaining a specific model's sentiment prediction score on a headline. Supported methods include 'occlusion' (leave-one-out), 'integrated_gradients' (Captum path-integral), and 'shap' (partition explainer). Caches results in SQLite if an article_id is supplied.",
+        "operationId": "explain_headline_api_v1_explain_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplainRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplainResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid model or explanation method",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error on headline text limits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/topics": {
+      "get": {
+        "tags": [
+          "Topics & Headlines"
+        ],
+        "summary": "List all news tracking topics",
+        "description": "Retrieve all configured topics alongside their current ingested article counts.",
+        "operationId": "list_topics_api_v1_topics_get",
+        "parameters": [
+          {
+            "name": "active_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Filter only active tracking topics",
+              "default": false,
+              "title": "Active Only"
+            },
+            "description": "Filter only active tracking topics"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicsListResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Topics & Headlines"
+        ],
+        "summary": "Create or update a tracking topic",
+        "description": "Register a new thematic news topic and query string for automated ingestion.",
+        "operationId": "create_topic_api_v1_topics_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopicCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error on name or query length",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/topics/{id}/headlines": {
+      "get": {
+        "tags": [
+          "Topics & Headlines"
+        ],
+        "summary": "Get paginated headlines for a topic",
+        "description": "Retrieve paginated articles for a specific topic, filterable by date range, news publisher outlet, predicted sentiment label, and sentiment model.",
+        "operationId": "get_topic_headlines_api_v1_topics__id__headlines_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number"
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "description": "Items per page (max 100)",
+              "default": 20,
+              "title": "Page Size"
+            },
+            "description": "Items per page (max 100)"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Earliest publication date",
+              "title": "Start Date"
+            },
+            "description": "Earliest publication date"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Latest publication date",
+              "title": "End Date"
+            },
+            "description": "Latest publication date"
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by publisher outlet or provider",
+              "title": "Source"
+            },
+            "description": "Filter by publisher outlet or provider"
+          },
+          {
+            "name": "label",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by sentiment label",
+              "title": "Label"
+            },
+            "description": "Filter by sentiment label"
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter predictions by model name",
+              "title": "Model"
+            },
+            "description": "Filter predictions by model name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedHeadlinesResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Topic not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid pagination parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/topics/{id}/summary": {
+      "get": {
+        "tags": [
+          "Topics & Headlines"
+        ],
+        "summary": "Get sentiment distribution and average score for a topic",
+        "description": "Compute overall sentiment distribution (counts and percentages) and average continuous score for a topic within an optional date range.",
+        "operationId": "get_topic_summary_api_v1_topics__id__summary_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Sentiment model to aggregate scores from",
+              "default": "vader",
+              "title": "Model"
+            },
+            "description": "Sentiment model to aggregate scores from"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Earliest publication date",
+              "title": "Start Date"
+            },
+            "description": "Earliest publication date"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Latest publication date",
+              "title": "End Date"
+            },
+            "description": "Latest publication date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicSummaryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Topic not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/topics/{id}/trend": {
+      "get": {
+        "tags": [
+          "Topics & Headlines"
+        ],
+        "summary": "Get daily sentiment and headline volume trend",
+        "description": "Retrieve a daily chronological time series of sentiment scores and publication volumes for charting.",
+        "operationId": "get_topic_trend_api_v1_topics__id__trend_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "model",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Sentiment model to aggregate scores from",
+              "default": "vader",
+              "title": "Model"
+            },
+            "description": "Sentiment model to aggregate scores from"
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Earliest publication date",
+              "title": "Start Date"
+            },
+            "description": "Earliest publication date"
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Latest publication date",
+              "title": "End Date"
+            },
+            "description": "Latest publication date"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TopicTrendResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Topic not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/models": {
+      "get": {
+        "tags": [
+          "Models Registry"
+        ],
+        "summary": "List registered sentiment models and evaluation metrics",
+        "description": "Retrieve all models currently registered in the system (e.g. VADER baseline, RoBERTa, FinBERT, fine-tuned DistilRoBERTa), their training domains, benchmark contamination status, accuracy/F1 performance scores, and explainability metrics.",
+        "operationId": "list_models_registry_api_v1_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelsRegistryResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "Service liveness and health probe",
+        "description": "Check API status, database connectivity, and preloaded models.",
+        "operationId": "root_health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "System"
+        ],
+        "summary": "API service index",
+        "description": "API service root information.",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response Root  Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyzeRequest": {
+        "properties": {
+          "texts": {
+            "items": {
+              "type": "string",
+              "maxLength": 1000,
+              "minLength": 1
+            },
+            "type": "array",
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Texts",
+            "description": "List of news headlines to classify (1-50 items, max 1000 chars each)",
+            "examples": [
+              [
+                "Wall Street opens sharply higher on cooler inflation print",
+                "Severe quarterly losses trigger corporate restructuring"
+              ]
+            ]
+          },
+          "models": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Models",
+            "description": "Optional list of model names (e.g. 'vader', 'roberta'). Defaults to all available.",
+            "examples": [
+              [
+                "vader",
+                "roberta"
+              ]
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "texts"
+        ],
+        "title": "AnalyzeRequest",
+        "description": "Request payload for multi-text, multi-model sentiment classification."
+      },
+      "AnalyzeResponse": {
+        "properties": {
+          "texts_count": {
+            "type": "integer",
+            "title": "Texts Count",
+            "description": "Number of analyzed text items"
+          },
+          "models": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Models",
+            "description": "List of models that produced predictions"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/TextAnalysisResult"
+            },
+            "type": "array",
+            "title": "Results",
+            "description": "Per-text classification results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "texts_count",
+          "models",
+          "results"
+        ],
+        "title": "AnalyzeResponse",
+        "description": "Response payload containing predictions across texts and models."
+      },
+      "DailyTrendItem": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date",
+            "description": "Calendar date in 'YYYY-MM-DD' ISO format"
+          },
+          "average_score": {
+            "type": "number",
+            "title": "Average Score",
+            "description": "Mean polarity score for the day in [-1.0, 1.0]"
+          },
+          "headline_volume": {
+            "type": "integer",
+            "title": "Headline Volume",
+            "description": "Number of headlines published on this date"
+          },
+          "positive_count": {
+            "type": "integer",
+            "title": "Positive Count",
+            "description": "Count of positive headlines"
+          },
+          "neutral_count": {
+            "type": "integer",
+            "title": "Neutral Count",
+            "description": "Count of neutral headlines"
+          },
+          "negative_count": {
+            "type": "integer",
+            "title": "Negative Count",
+            "description": "Count of negative headlines"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "average_score",
+          "headline_volume",
+          "positive_count",
+          "neutral_count",
+          "negative_count"
+        ],
+        "title": "DailyTrendItem",
+        "description": "Daily aggregated sentiment metric point for time-series charting."
+      },
+      "DateRange": {
+        "properties": {
+          "start": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start",
+            "description": "Earliest publication timestamp"
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End",
+            "description": "Latest publication timestamp"
+          }
+        },
+        "type": "object",
+        "title": "DateRange",
+        "description": "Effective filtering date bounds."
+      },
+      "ErrorDetail": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Machine-readable error classification code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "description": "Human-readable explanation of the error condition"
+          },
+          "details": {
+            "title": "Details",
+            "description": "Optional diagnostic details or validation items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorDetail",
+        "description": "Detailed error payload contained in standard error responses."
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse",
+        "description": "Consistent envelope returned for all API error responses."
+      },
+      "ExplainRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Text",
+            "description": "News headline text to explain (max 1000 characters)",
+            "examples": [
+              "Operating profit rose to EUR 13.1 mn from EUR 8.7 mn"
+            ]
+          },
+          "model": {
+            "type": "string",
+            "title": "Model",
+            "description": "Target model name ('vader', 'roberta', 'finbert', 'fine_tuned')",
+            "default": "vader",
+            "examples": [
+              "vader"
+            ]
+          },
+          "method": {
+            "type": "string",
+            "title": "Method",
+            "description": "Attribution method: 'occlusion', 'integrated_gradients', or 'shap'",
+            "default": "occlusion",
+            "examples": [
+              "occlusion"
+            ]
+          },
+          "article_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Article Id",
+            "description": "Optional database article ID for persistent caching",
+            "examples": [
+              12
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "ExplainRequest",
+        "description": "Request payload to explain a prediction score on a headline."
+      },
+      "ExplainResponse": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Headline text that was explained"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name",
+            "description": "Model name evaluated"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version",
+            "description": "Model version or checkpoint revision"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method",
+            "description": "Attribution algorithm applied"
+          },
+          "prediction_label": {
+            "type": "string",
+            "title": "Prediction Label",
+            "description": "Predicted sentiment class"
+          },
+          "prediction_score": {
+            "type": "number",
+            "title": "Prediction Score",
+            "description": "Continuous polarity score in [-1.0, 1.0]"
+          },
+          "attributions": {
+            "items": {
+              "$ref": "#/components/schemas/TokenAttributionItem"
+            },
+            "type": "array",
+            "title": "Attributions",
+            "description": "Ordered list of token attributions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "model_name",
+          "model_version",
+          "method",
+          "prediction_label",
+          "prediction_score",
+          "attributions"
+        ],
+        "title": "ExplainResponse",
+        "description": "Response payload containing token attributions explaining a prediction."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HeadlineItem": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Article primary key identifier"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Article headline title"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url",
+            "description": "Canonical article source URL"
+          },
+          "outlet": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outlet",
+            "description": "News publisher outlet"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At",
+            "description": "Publication timestamp"
+          },
+          "topic": {
+            "type": "string",
+            "title": "Topic",
+            "description": "Associated topic name"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider",
+            "description": "Ingestion provider source"
+          },
+          "predictions": {
+            "items": {
+              "$ref": "#/components/schemas/HeadlinePredictionItem"
+            },
+            "type": "array",
+            "title": "Predictions",
+            "description": "Model predictions stored for this headline"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "url",
+          "topic",
+          "provider"
+        ],
+        "title": "HeadlineItem",
+        "description": "Ingested news article headline with attached model predictions."
+      },
+      "HeadlinePredictionItem": {
+        "properties": {
+          "model_name": {
+            "type": "string",
+            "title": "Model Name",
+            "description": "Model name"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version",
+            "description": "Model version"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Sentiment label"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score",
+            "description": "Sentiment score in [-1.0, 1.0]"
+          },
+          "probabilities": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Probabilities",
+            "description": "Class probabilities"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Timestamp when prediction was saved"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model_name",
+          "model_version",
+          "label",
+          "score",
+          "probabilities",
+          "created_at"
+        ],
+        "title": "HeadlinePredictionItem",
+        "description": "Stored model prediction attached to a headline."
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Overall service status ('healthy' or 'degraded')"
+          },
+          "app": {
+            "type": "string",
+            "title": "App",
+            "description": "Application name"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Semantic version string"
+          },
+          "environment": {
+            "type": "string",
+            "title": "Environment",
+            "description": "Active execution environment"
+          },
+          "database": {
+            "type": "string",
+            "title": "Database",
+            "description": "Database connection health ('connected' or 'error')"
+          },
+          "models_loaded": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Models Loaded",
+            "description": "List of preloaded sentiment models"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "app",
+          "version",
+          "environment",
+          "database",
+          "models_loaded"
+        ],
+        "title": "HealthResponse",
+        "description": "System health, environment info, and runtime dependency status."
+      },
+      "ModelEvaluationMetrics": {
+        "properties": {
+          "accuracy": {
+            "type": "number",
+            "title": "Accuracy",
+            "description": "Accuracy on benchmark test set"
+          },
+          "macro_f1": {
+            "type": "number",
+            "title": "Macro F1",
+            "description": "Macro-F1 score across sentiment classes"
+          },
+          "bootstrap_ci_macro_f1": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bootstrap Ci Macro F1",
+            "description": "95% non-parametric bootstrap confidence interval"
+          },
+          "sample_size": {
+            "type": "integer",
+            "title": "Sample Size",
+            "description": "Test split evaluation sample count",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "accuracy",
+          "macro_f1"
+        ],
+        "title": "ModelEvaluationMetrics",
+        "description": "Empirical benchmarking metrics from Phase 3 & 4 evaluations."
+      },
+      "ModelExplainabilityMetrics": {
+        "properties": {
+          "deletion_aopc_gain": {
+            "type": "number",
+            "title": "Deletion Aopc Gain",
+            "description": "Faithfulness gain over random deletion baseline"
+          },
+          "pct_faithful": {
+            "type": "number",
+            "title": "Pct Faithful",
+            "description": "Percentage of samples with positive faithfulness gain"
+          },
+          "plausibility_top3_f1": {
+            "type": "number",
+            "title": "Plausibility Top3 F1",
+            "description": "Token-level F1 against human rationale annotations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "deletion_aopc_gain",
+          "pct_faithful",
+          "plausibility_top3_f1"
+        ],
+        "title": "ModelExplainabilityMetrics",
+        "description": "Faithfulness and plausibility evaluation metrics from Phase 5."
+      },
+      "ModelMetadataItem": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Registered model name key"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "Model version or checkpoint revision"
+          },
+          "domain": {
+            "type": "string",
+            "title": "Domain",
+            "description": "Training domain and data characteristics"
+          },
+          "is_contaminated": {
+            "type": "boolean",
+            "title": "Is Contaminated",
+            "description": "True if trained directly on evaluated benchmark dataset"
+          },
+          "contamination_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contamination Reason",
+            "description": "Contamination explanation if flagged"
+          },
+          "evaluation_metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelEvaluationMetrics"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Benchmark classification metrics"
+          },
+          "explainability_metrics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelExplainabilityMetrics"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Faithfulness and plausibility explainability metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "version",
+          "domain",
+          "is_contaminated"
+        ],
+        "title": "ModelMetadataItem",
+        "description": "Metadata, domain description, and evaluation scores for a registered model."
+      },
+      "ModelPredictionItem": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label",
+            "description": "Sentiment category: 'positive', 'neutral', or 'negative'"
+          },
+          "score": {
+            "type": "number",
+            "title": "Score",
+            "description": "Continuous polarity score in [-1.0, 1.0]"
+          },
+          "probabilities": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Probabilities",
+            "description": "Class probability distribution"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version",
+            "description": "Version or pinned checkpoint revision string"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "score",
+          "probabilities",
+          "model_version"
+        ],
+        "title": "ModelPredictionItem",
+        "description": "Classification prediction result from a single sentiment model."
+      },
+      "ModelsRegistryResponse": {
+        "properties": {
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/ModelMetadataItem"
+            },
+            "type": "array",
+            "title": "Models",
+            "description": "Registered sentiment models"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Count of registered models"
+          }
+        },
+        "type": "object",
+        "required": [
+          "models",
+          "total"
+        ],
+        "title": "ModelsRegistryResponse",
+        "description": "List of all registered sentiment models with complete metadata."
+      },
+      "PaginatedHeadlinesResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HeadlineItem"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "Headlines on current page"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Total matching headline count across all pages"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page",
+            "description": "Current 1-based page index"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size",
+            "description": "Number of items per page"
+          },
+          "total_pages": {
+            "type": "integer",
+            "title": "Total Pages",
+            "description": "Total page count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "total_pages"
+        ],
+        "title": "PaginatedHeadlinesResponse",
+        "description": "Paginated collection of headlines matching filter criteria."
+      },
+      "SentimentDistribution": {
+        "properties": {
+          "positive": {
+            "type": "integer",
+            "title": "Positive",
+            "description": "Count of positive headlines"
+          },
+          "neutral": {
+            "type": "integer",
+            "title": "Neutral",
+            "description": "Count of neutral headlines"
+          },
+          "negative": {
+            "type": "integer",
+            "title": "Negative",
+            "description": "Count of negative headlines"
+          }
+        },
+        "type": "object",
+        "required": [
+          "positive",
+          "neutral",
+          "negative"
+        ],
+        "title": "SentimentDistribution",
+        "description": "Raw count of headlines per sentiment class."
+      },
+      "SentimentPercentages": {
+        "properties": {
+          "positive": {
+            "type": "number",
+            "title": "Positive",
+            "description": "Percentage positive"
+          },
+          "neutral": {
+            "type": "number",
+            "title": "Neutral",
+            "description": "Percentage neutral"
+          },
+          "negative": {
+            "type": "number",
+            "title": "Negative",
+            "description": "Percentage negative"
+          }
+        },
+        "type": "object",
+        "required": [
+          "positive",
+          "neutral",
+          "negative"
+        ],
+        "title": "SentimentPercentages",
+        "description": "Proportion of headlines per sentiment class (0.0 to 100.0)."
+      },
+      "TextAnalysisResult": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Original input headline text"
+          },
+          "predictions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ModelPredictionItem"
+            },
+            "type": "object",
+            "title": "Predictions",
+            "description": "Model predictions keyed by model name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "text",
+          "predictions"
+        ],
+        "title": "TextAnalysisResult",
+        "description": "Prediction outputs for a single input text across requested models."
+      },
+      "TokenAttributionItem": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token",
+            "description": "Word or punctuation token from the headline"
+          },
+          "weight": {
+            "type": "number",
+            "title": "Weight",
+            "description": "Continuous signed attribution weight explaining score delta in [-1.0, 1.0]"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "weight"
+        ],
+        "title": "TokenAttributionItem",
+        "description": "Attribution weight assigned to an individual word/punctuation token."
+      },
+      "TopicCreateRequest": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name",
+            "description": "Unique topic identifier name (e.g. 'markets', 'climate')",
+            "examples": [
+              "macroeconomics"
+            ]
+          },
+          "query": {
+            "type": "string",
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Query",
+            "description": "Search query string used during news provider ingestion",
+            "examples": [
+              "inflation OR interest rates OR central bank"
+            ]
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "Whether this topic is active for automated ingestion runs",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "query"
+        ],
+        "title": "TopicCreateRequest",
+        "description": "Request payload to create a news tracking topic."
+      },
+      "TopicResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id",
+            "description": "Topic primary key identifier"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Unique topic name"
+          },
+          "query": {
+            "type": "string",
+            "title": "Query",
+            "description": "Search query string"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "description": "Active tracking status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At",
+            "description": "Creation timestamp"
+          },
+          "article_count": {
+            "type": "integer",
+            "title": "Article Count",
+            "description": "Total ingested articles under this topic",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "query",
+          "is_active",
+          "created_at"
+        ],
+        "title": "TopicResponse",
+        "description": "Tracking topic metadata with current article counts."
+      },
+      "TopicSummaryResponse": {
+        "properties": {
+          "topic_id": {
+            "type": "integer",
+            "title": "Topic Id",
+            "description": "Topic identifier"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name",
+            "description": "Topic name"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name",
+            "description": "Model used to compute sentiment scores"
+          },
+          "total_headlines": {
+            "type": "integer",
+            "title": "Total Headlines",
+            "description": "Total headlines evaluated"
+          },
+          "sentiment_distribution": {
+            "$ref": "#/components/schemas/SentimentDistribution",
+            "description": "Class counts"
+          },
+          "sentiment_percentages": {
+            "$ref": "#/components/schemas/SentimentPercentages",
+            "description": "Class percentages"
+          },
+          "average_score": {
+            "type": "number",
+            "title": "Average Score",
+            "description": "Arithmetic mean sentiment score in [-1.0, 1.0]"
+          },
+          "date_range": {
+            "$ref": "#/components/schemas/DateRange",
+            "description": "Date range evaluated"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_id",
+          "topic_name",
+          "model_name",
+          "total_headlines",
+          "sentiment_distribution",
+          "sentiment_percentages",
+          "average_score",
+          "date_range"
+        ],
+        "title": "TopicSummaryResponse",
+        "description": "Aggregated sentiment overview for a topic within a date range."
+      },
+      "TopicTrendResponse": {
+        "properties": {
+          "topic_id": {
+            "type": "integer",
+            "title": "Topic Id",
+            "description": "Topic identifier"
+          },
+          "topic_name": {
+            "type": "string",
+            "title": "Topic Name",
+            "description": "Topic name"
+          },
+          "model_name": {
+            "type": "string",
+            "title": "Model Name",
+            "description": "Model name evaluated"
+          },
+          "time_series": {
+            "items": {
+              "$ref": "#/components/schemas/DailyTrendItem"
+            },
+            "type": "array",
+            "title": "Time Series",
+            "description": "Chronological daily data points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topic_id",
+          "topic_name",
+          "model_name",
+          "time_series"
+        ],
+        "title": "TopicTrendResponse",
+        "description": "Chronological time-series trend of sentiment and headline volume."
+      },
+      "TopicsListResponse": {
+        "properties": {
+          "topics": {
+            "items": {
+              "$ref": "#/components/schemas/TopicResponse"
+            },
+            "type": "array",
+            "title": "Topics",
+            "description": "Configured topics"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total",
+            "description": "Total count of topics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "topics",
+          "total"
+        ],
+        "title": "TopicsListResponse",
+        "description": "List of all configured tracking topics."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
