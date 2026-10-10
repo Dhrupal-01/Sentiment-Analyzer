@@ -310,3 +310,168 @@ def test_custom_mock_model_explainers() -> None:
     shap_exp = shap_explainer.explain(text, mock)
     shap_tokens = {a.token: a.weight for a in shap_exp.attributions}
     assert shap_tokens["surge"] > 0.0
+
+
+def test_explainer_empty_text_and_fallbacks() -> None:
+    """Verify empty text handling and fallback behaviors in explainers."""
+
+    class DummyModel(SentimentModel):
+        @property
+        def name(self) -> str:
+            return "dummy"
+
+        @property
+        def version(self) -> str:
+            return "0.1"
+
+        def predict(self, texts: list[str]) -> list[Prediction]:
+            return [
+                Prediction(
+                    label="neutral",
+                    score=0.0,
+                    probabilities={"positive": 0.0, "neutral": 1.0, "negative": 0.0},
+                )
+                for _ in texts
+            ]
+
+    dummy = DummyModel()
+    ig_explainer = IntegratedGradientsExplainer()
+    assert ig_explainer.explain("", dummy).attributions == []
+
+    shap_explainer = ShapExplainer()
+    assert shap_explainer.explain("", dummy).attributions == []
+
+
+def test_run_shap_partition_mocked() -> None:
+    """Verify _run_shap_partition with mocked shap library and pipeline."""
+    import sys
+    from unittest.mock import MagicMock, patch
+
+    from news_sentiment.explain.shap_explainer import _run_real_shap
+
+    class PipeModel(SentimentModel):
+        @property
+        def name(self) -> str:
+            return "pipemodel"
+
+        @property
+        def version(self) -> str:
+            return "1.0"
+
+        def predict(self, texts: list[str]) -> list[Prediction]:
+            return [
+                Prediction(
+                    label="positive",
+                    score=0.8,
+                    probabilities={"positive": 0.8, "neutral": 0.2, "negative": 0.0},
+                )
+                for _ in texts
+            ]
+
+    model = PipeModel()
+    assert _run_real_shap("test", model) is None
+
+    # Attach mock pipeline
+    model._pipeline = MagicMock()  # type: ignore[attr-defined]
+
+    mock_shap = MagicMock()
+    mock_values = MagicMock()
+    mock_values.values = [[0.65, -0.15]]
+    mock_values.data = [["profit", "loss"]]
+    mock_shap.Explainer.return_value = MagicMock(return_value=mock_values)
+
+    with patch.dict(sys.modules, {"shap": mock_shap}):
+        attrs = _run_real_shap("profit loss", model)
+        assert attrs is not None
+        assert len(attrs) == 2
+        assert attrs[0].token == "profit"
+        assert attrs[0].weight == 0.65
+
+        # Also exercise ShapExplainer.explain branch when real_shap returns results
+        expl = ShapExplainer().explain("profit loss", model)
+        assert expl.attributions == attrs
+        assert expl.method == "shap"
+
+
+def test_run_captum_ig_mocked() -> None:
+    """Verify _run_captum_ig with mocked torch and captum modules."""
+    import sys
+    from unittest.mock import MagicMock, patch
+
+    from news_sentiment.explain.integrated_gradients import _run_captum_ig
+
+    class PipeModel(SentimentModel):
+        @property
+        def name(self) -> str:
+            return "pipemodel"
+
+        @property
+        def version(self) -> str:
+            return "1.0"
+
+        def predict(self, texts: list[str]) -> list[Prediction]:
+            return [
+                Prediction(
+                    label="positive",
+                    score=0.8,
+                    probabilities={"positive": 0.8, "neutral": 0.2, "negative": 0.0},
+                )
+                for _ in texts
+            ]
+
+    model = PipeModel()
+    assert _run_captum_ig("test", model) is None
+
+    mock_torch = MagicMock()
+    mock_probs = MagicMock()
+    mock_probs.shape = [1, 3]
+    mock_probs.__getitem__ = MagicMock(return_value=MagicMock(__sub__=lambda s, o: MagicMock()))
+    mock_torch.softmax.return_value = mock_probs
+
+    mock_captum_attr = MagicMock()
+    mock_lig = MagicMock()
+    mock_attr_tensor = MagicMock()
+    attr_detached = mock_attr_tensor.sum.return_value.squeeze.return_value.detach.return_value
+    attr_detached.cpu.return_value.numpy.return_value = [0.45, 0.25]
+    mock_lig.attribute.return_value = (mock_attr_tensor, None)
+    mock_captum_attr.LayerIntegratedGradients.return_value = mock_lig
+
+    mock_tf = MagicMock()
+    mock_pipe = MagicMock()
+    mock_hf_model = MagicMock()
+    mock_hf_model.roberta.embeddings = MagicMock()
+    mock_pipe.model = mock_hf_model
+
+    mock_tokenizer = MagicMock()
+    mock_input_ids = MagicMock()
+    mock_input_ids.squeeze.return_value.tolist.return_value = [101, 102]
+    mock_tokenizer.return_value = {
+        "input_ids": mock_input_ids,
+        "attention_mask": MagicMock(),
+    }
+    mock_tokenizer.cls_token = "[CLS]"
+    mock_tokenizer.sep_token = "[SEP]"
+    mock_tokenizer.pad_token = "[PAD]"
+    mock_tokenizer.convert_ids_to_tokens.return_value = ["surge", "profit"]
+    mock_pipe.tokenizer = mock_tokenizer
+
+    model._pipeline = mock_pipe  # type: ignore[attr-defined]
+
+    with patch.dict(
+        sys.modules,
+        {
+            "torch": mock_torch,
+            "captum": MagicMock(),
+            "captum.attr": mock_captum_attr,
+            "transformers": mock_tf,
+        },
+    ):
+        attrs = _run_captum_ig("surge profit", model)
+        assert attrs is not None
+        assert len(attrs) == 2
+        assert attrs[0].token == "surge"
+
+        # Also exercise IntegratedGradientsExplainer.explain branch
+        expl = IntegratedGradientsExplainer().explain("surge profit", model)
+        assert expl.attributions == attrs
+        assert expl.method == "integrated_gradients"

@@ -288,3 +288,73 @@ def test_financial_phrasebank_loader_splits() -> None:
         assert train_ids.isdisjoint(val_ids)
         assert train_ids.isdisjoint(test_ids)
         assert val_ids.isdisjoint(test_ids)
+
+
+def test_benchmark_runner_full_suite() -> None:
+    """Verify BenchmarkRunner with training summary, empty datasets, and all evaluations."""
+    from unittest.mock import patch
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        runner = BenchmarkRunner(output_dir=Path(tmp_dir))
+        model = MockEvalModel("mock_eval", fixed_pred="positive")
+
+        # 1. Empty items handling
+        empty_out = runner.evaluate_model_on_dataset(model, "empty_ds", [])
+        assert empty_out.metrics.sample_size == 0
+        assert empty_out.error_analysis.total_errors == 0
+
+        # 2. Reference file loading
+        ref_file = Path(tmp_dir) / "ref.jsonl"
+        ref_file.write_text(
+            '{"id": 1, "text": "Stock surge", "label": "positive"}\n',
+            encoding="utf-8",
+        )
+        items = runner.load_in_domain_dataset(reference_file=ref_file)
+        assert len(items) == 1
+        assert items[0].text == "Stock surge"
+
+        # 3. run_all_evaluations
+        with patch.object(runner, "load_financial_phrasebank_test", return_value=items):
+            evals = runner.run_all_evaluations(models=[model], in_domain_items=items)
+            assert "financial_phrasebank" in evals
+            assert "in_domain" in evals
+
+        # 4. save_reports with full training summary
+        train_summary = {
+            "validation_metrics": {
+                "accuracy_mean": 0.88,
+                "accuracy_std": 0.01,
+                "macro_f1_mean": 0.86,
+                "macro_f1_std": 0.005,
+            },
+            "financial_phrasebank_test_metrics": {
+                "accuracy_mean": 0.86,
+                "accuracy_std": 0.01,
+                "macro_f1_mean": 0.85,
+                "macro_f1_std": 0.002,
+            },
+            "in_domain_news_test_metrics": {
+                "accuracy_mean": 0.74,
+                "accuracy_std": 0.01,
+                "macro_f1_mean": 0.71,
+                "macro_f1_std": 0.006,
+            },
+            "domain_gap": {"macro_f1_drop": -0.14, "relative_drop_pct": 16.8},
+            "per_seed_results": [
+                {
+                    "seed": 42,
+                    "val_accuracy": 0.87,
+                    "val_macro_f1": 0.86,
+                    "test_accuracy": 0.86,
+                    "test_macro_f1": 0.85,
+                    "indomain_accuracy": 0.73,
+                    "indomain_macro_f1": 0.70,
+                }
+            ],
+        }
+        json_path, md_path = runner.save_reports(evals, training_summary=train_summary)
+        assert json_path.exists()
+        assert md_path.exists()
+        md_text = md_path.read_text(encoding="utf-8")
+        assert "Multi-Seed Reproducibility" in md_text
+        assert "Seed `42`" in md_text
