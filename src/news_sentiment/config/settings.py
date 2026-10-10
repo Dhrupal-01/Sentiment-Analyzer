@@ -54,8 +54,25 @@ class Settings(BaseSettings):
         description="Port for the FastAPI server",
     )
     cors_origins: list[str] = Field(
-        default=["http://localhost:5173", "http://127.0.0.1:5173"],
+        default=[
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+        ],
         description="Allowed CORS origins for the frontend",
+    )
+    api_rate_limit_per_minute: int = Field(
+        default=120,
+        description="Maximum requests per minute per IP",
+    )
+    api_max_batch_size: int = Field(
+        default=50,
+        description="Maximum texts batch size for /analyze endpoint",
+    )
+    api_max_text_length: int = Field(
+        default=1000,
+        description="Maximum character length per analyzed text",
     )
     newsapi_key: str | None = Field(
         default=None,

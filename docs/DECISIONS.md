@@ -313,3 +313,30 @@ This document tracks all non-trivial technical and architectural decisions for t
 - **Alternatives Rejected**:
   - Evaluating only insertion or only deletion: Rejected because deletion can introduce out-of-distribution sentence fragments; evaluating both insertion and deletion provides balanced verification.
   - Qualitative visual inspection without metrics: Rejected because anecdotal cherry-picking masks systematic attribution degradation.
+
+---
+
+## ADR-025: Versioned REST API with Standard Error Envelopes and Input Boundary Enforcement
+- **Date**: 2026-10-10
+- **Decision**: Version all core production endpoints under `/api/v1` (`/analyze`, `/explain`, `/topics`, `/topics/{id}/headlines`, `/topics/{id}/summary`, `/topics/{id}/trend`, `/models`, `/health`). Enforce a uniform JSON error envelope across all 4xx/5xx responses: `{"error": {"code": str, "message": str, "details": Any}}`. Enforce strict input limits via Pydantic validators and query constraints (max 1000 characters per headline, max 50 headlines per analysis batch, paginated headlines with max 100 items per page).
+- **Reasoning**:
+  - Predictable client contract: A standardized error envelope allows the React frontend and downstream API consumers to parse errors with a single unified handler rather than accommodating disparate Starlette and FastAPI exception structures.
+  - Future-proof versioning: Prefixing routes with `/api/v1` permits introducing breaking contract evolutions in future iterations without breaking active dashboard deployments.
+  - DoS and resource protection: Restricting text length to 1000 characters and batch size to 50 items prevents CPU thread exhaustion and out-of-memory errors during transformer tokenization and attribution calculation.
+- **Alternatives Rejected**:
+  - Default FastAPI error payloads (`{"detail": [...]}`): Rejected because error structure fluctuates between validation errors (nested lists of loc/msg/type) and custom HTTP exceptions (strings or dictionaries).
+  - Unversioned root endpoints (`/analyze`, `/explain`): Rejected due to lack of backwards compatibility guarantees.
+
+---
+
+## ADR-026: Lifespan Model Warmup and Multi-Tier Explanation Caching for Low-Latency CPU Serving
+- **Date**: 2026-10-10
+- **Decision**: Preload and warm up all registered sentiment models once at application startup using FastAPI's `lifespan` context manager, storing warm model instances in `app.state.models` for CPU inference. Implement multi-tier explanation caching: (1) SQLite database persistence via the `article_explanations` table for stored articles by `article_id`, and (2) an in-memory LRU cache (capacity 500) for ad-hoc user query strings. Configure in-memory sliding-window IP rate limiting (120 req/min default, configurable) with `Retry-After` response headers.
+- **Reasoning**:
+  - Eliminating cold-start latency: Loading tokenizers, vocabulary matrices, and transformer checkpoints on live incoming requests introduces multi-second latency spikes. Startup lifespan preloading warms all models before traffic is admitted.
+  - Attribution throughput: Explainability algorithms (especially SHAP and Integrated Gradients) require multiple forward passes per token. Dual-tier caching ensures recurring headline explanations resolve with sub-millisecond latency.
+  - Abuse prevention: In-memory sliding-window rate limiting prevents runaway loops or unauthenticated scripts from overloading CPU inference threads while allowing health checks to remain unaffected.
+- **Alternatives Rejected**:
+  - Lazy loading models on first request: Rejected because end users would experience sporadic multi-second request timeouts.
+  - Caching explanations only in memory: Rejected because stored article explanations would vanish upon server reboot or worker restart.
+
