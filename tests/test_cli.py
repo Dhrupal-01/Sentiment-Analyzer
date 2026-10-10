@@ -40,3 +40,44 @@ def test_cli_main_callable() -> None:
     with patch("news_sentiment.cli.app") as mock_app:
         main()
         mock_app.assert_called_once()
+
+
+def test_cli_explain_success() -> None:
+    """Verify that 'newsent explain' outputs token attributions."""
+    result = runner.invoke(
+        app,
+        [
+            "explain",
+            "Markets rally strongly as inflation cools",
+            "--model",
+            "vader",
+            "--method",
+            "occlusion",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "Headline:" in result.output
+    assert "Model:" in result.output
+    assert "Prediction:" in result.output
+    assert "Token" in result.output
+    assert "Attribution Weight" in result.output
+
+
+def test_cli_explain_invalid_model() -> None:
+    """Verify that 'newsent explain' errors gracefully on unknown model."""
+    result = runner.invoke(
+        app,
+        ["explain", "Markets rally", "--model", "unknown_model"],
+    )
+    assert result.exit_code != 0
+    assert "Error loading model" in result.output
+
+
+def test_cli_explain_invalid_method() -> None:
+    """Verify that 'newsent explain' errors gracefully on unknown explainer method."""
+    result = runner.invoke(
+        app,
+        ["explain", "Markets rally", "--model", "vader", "--method", "unknown_method"],
+    )
+    assert result.exit_code != 0
+    assert "Error generating explanation" in result.output

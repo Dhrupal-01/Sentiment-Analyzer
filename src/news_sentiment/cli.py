@@ -6,6 +6,7 @@ import typer
 
 from news_sentiment import __version__
 from news_sentiment.evaluation.metrics import compute_confusion_matrix
+from news_sentiment.explain.service import explain_detailed
 from news_sentiment.models.metrics import compute_agreement_rate, compute_cohen_kappa
 from news_sentiment.models.pipeline import InferencePipeline
 from news_sentiment.models.registry import get_model
@@ -521,6 +522,68 @@ def label_agreement_cmd(
                 title = a1.article.title if a1.article else f"Article {a1.article_id}"
                 typer.echo(f'  {idx}. "{title}"')
                 typer.echo(f"     • {annotator1}: {a1.label} | {annotator2}: {a2.label}")
+
+
+@app.command("explain")
+def explain_cmd(
+    text: Annotated[
+        str,
+        typer.Argument(help="Headline text to explain."),
+    ],
+    model: Annotated[
+        str,
+        typer.Option(
+            "--model",
+            "-m",
+            help="Sentiment model identifier ('vader', 'roberta', 'finbert').",
+        ),
+    ] = "vader",
+    method: Annotated[
+        str,
+        typer.Option(
+            "--method",
+            help="Explanation method ('occlusion', 'integrated_gradients', 'shap').",
+        ),
+    ] = "occlusion",
+) -> None:
+    """Explain a model prediction with token-level feature attributions."""
+    try:
+        model_instance = get_model(model)
+    except Exception as exc:
+        typer.echo(f"Error loading model '{model}': {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+    try:
+        explanation = explain_detailed(
+            text=text,
+            model=model_instance,
+            method=method,
+            use_cache=False,
+        )
+    except Exception as exc:
+        typer.echo(f"Error generating explanation: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+    typer.echo("=" * 60)
+    typer.echo(f'Headline:   "{explanation.text}"')
+    typer.echo(f"Model:      {explanation.model_name} (v{explanation.model_version})")
+    pred_label = explanation.prediction_label.upper()
+    score_fmt = f"{explanation.prediction_score:+.4f}"
+    typer.echo(f"Prediction: {pred_label} (Score: {score_fmt})")
+    typer.echo(f"Method:     {explanation.method}")
+    typer.echo("=" * 60)
+    typer.echo(f"{'Token':<20} | {'Attribution Weight':^18} | {'Direction'}")
+    typer.echo("-" * 60)
+
+    for attr in explanation.attributions:
+        if attr.weight > 0:
+            direction = "Positive (+)"
+        elif attr.weight < 0:
+            direction = "Negative (-)"
+        else:
+            direction = "Neutral (0)"
+        typer.echo(f"{attr.token:<20} | {attr.weight:^+18.4f} | {direction}")
+    typer.echo("=" * 60)
 
 
 def main() -> None:
