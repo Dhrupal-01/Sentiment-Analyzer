@@ -13,6 +13,15 @@
 
 ---
 
+## Research & Technical Report
+
+- 📄 **Full Technical Paper (PDF)**: [docs/report/report.pdf](docs/report/report.pdf) *(Compiled 6-page two-column conference paper)*
+- 📝 **Markdown Paper**: [docs/report/REPORT.md](docs/report/REPORT.md)
+- 📚 **BibTeX Citations**: [docs/report/references.bib](docs/report/references.bib)
+- ⚡ **Build Command**: `make report` *(generates tables/figures from reports/ and compiles PDF)*
+
+---
+
 ## Live Demo & Preview
 
 - **Local Interactive Dashboard**: [http://localhost:3000](http://localhost:3000) *(via Docker Compose)* or `http://localhost:5173` *(Vite dev)*

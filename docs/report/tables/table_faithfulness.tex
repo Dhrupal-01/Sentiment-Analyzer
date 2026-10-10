@@ -1,0 +1,25 @@
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{1.8pt}
+\caption{Explanation Faithfulness on Financial PhraseBank Test Split ($K=5$). Del: Deletion AOPC, Rand: Random Baseline, Gain: $\Delta_{\text{AOPC}}$, Ins: Insertion AOPC.}
+\label{tab:faithfulness}
+\begin{tabular}{llccccr}
+\toprule
+\textbf{Model} & \textbf{Method} & \textbf{Del.} & \textbf{Rand.} & \textbf{Gain} & \textbf{Ins.} & \textbf{Faithful} \\
+\midrule
+VADER & Occlusion & 0.3172 & 0.0557 & +0.2615 & 0.3164 & 70.0\% \\
+VADER & IG & 0.3172 & 0.0557 & +0.2615 & 0.3164 & 70.0\% \\
+VADER & SHAP & 0.3124 & 0.0557 & +0.2567 & 0.3229 & 70.0\% \\
+RoBERTa & Occlusion & 0.0042 & 0.0003 & +0.0039 & 0.0042 & 1.7\% \\
+RoBERTa & IG & 0.0042 & 0.0003 & +0.0039 & 0.0042 & 1.7\% \\
+RoBERTa & SHAP & 0.0042 & 0.0003 & +0.0039 & 0.0042 & 1.7\% \\
+FinBERT & Occlusion & 0.2282 & 0.0345 & +0.1937 & 0.2330 & 71.7\% \\
+FinBERT & IG & 0.2282 & 0.0345 & +0.1937 & 0.2330 & 71.7\% \\
+FinBERT & SHAP & 0.2282 & 0.0345 & +0.1937 & 0.2330 & 71.7\% \\
+Fine-Tuned & Occlusion & 0.2282 & 0.0345 & +0.1937 & 0.2330 & 71.7\% \\
+Fine-Tuned & IG & 0.2282 & 0.0345 & +0.1937 & 0.2330 & 71.7\% \\
+Fine-Tuned & SHAP & 0.2282 & 0.0345 & +0.1937 & 0.2330 & 71.7\% \\
+\bottomrule
+\end{tabular}
+\end{table}

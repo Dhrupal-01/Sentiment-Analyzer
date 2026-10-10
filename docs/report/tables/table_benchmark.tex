@@ -1,0 +1,15 @@
+\begin{table*}[t]
+\centering
+\small
+\caption{Benchmark Performance across Financial PhraseBank ($N=342$) and General News Headlines ($N=300$). Macro-F1 is reported with 95\% empirical percentile bootstrap confidence intervals ($B=1,000$). *FinBERT was pre-trained/fine-tuned directly on Financial PhraseBank (in-sample contaminated).}
+\label{tab:benchmark}
+\begin{tabular}{lccccr}
+\toprule
+\textbf{Model} & \multicolumn{2}{c}{\textbf{Financial PhraseBank (Test)}} & \multicolumn{2}{c}{\textbf{In-Domain News Headlines}} & \textbf{Status} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+& Accuracy & Macro-F1 (95\% CI) & Accuracy & Macro-F1 (95\% CI) & \\
+\midrule
+VADER (Baseline) & 59.1\% & 0.507 [0.446, 0.569] & 58.0\% & 0.581 [0.524, 0.635] & Uncontaminated \\
+\bottomrule
+\end{tabular}
+\end{table*}

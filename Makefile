@@ -1,4 +1,4 @@
-.PHONY: help install lint format test eval run-api frontend-install frontend-test frontend-lint frontend-build docker-build docker-up docker-down clean
+.PHONY: help install lint format test eval explain report run-api frontend-install frontend-test frontend-lint frontend-build docker-build docker-up docker-down clean
 
 VENV ?= .venv
 PYTHON ?= $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,$(shell which python3))
@@ -11,6 +11,8 @@ help:
 	@echo "  make format          Format code with ruff"
 	@echo "  make test            Run unit and integration tests with coverage"
 	@echo "  make eval            Run benchmark evaluations and update documentation"
+	@echo "  make explain         Run explainability faithfulness evaluation"
+	@echo "  make report          Generate report figures/tables and compile LaTeX PDF"
 	@echo "  make run-api         Start FastAPI development server with reload"
 	@echo "  make frontend-test   Run frontend Vitest component tests"
 	@echo "  make frontend-lint   Run frontend ESLint checks"
@@ -42,6 +44,11 @@ eval:
 
 explain:
 	$(PYTHON) scripts/faithfulness.py
+
+report:
+	$(PYTHON) scripts/report_figures.py
+	tectonic docs/report/main.tex
+	cp docs/report/main.pdf docs/report/report.pdf
 
 run-api:
 	$(BIN)uvicorn news_sentiment.api.main:app --host 127.0.0.1 --port 8000 --reload

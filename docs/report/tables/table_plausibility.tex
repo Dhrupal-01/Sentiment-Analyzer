@@ -1,0 +1,17 @@
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2.5pt}
+\caption{Plausibility Agreement against 100 Human Headline Rationales across 5 news beats. Token-level F1 at Top-$k$ ($k=1, 2, 3$) alongside Top-3 Precision and Recall.}
+\label{tab:plausibility}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Model} & \textbf{Top-1} & \textbf{Top-2} & \textbf{Top-3} & \textbf{T-3 Prec} & \textbf{T-3 Rec} \\
+\midrule
+VADER & 0.227 & 0.325 & \textbf{0.428} & 0.398 & 0.508 \\
+RoBERTa & 0.317 & 0.448 & \textbf{0.563} & 0.537 & 0.628 \\
+FinBERT & 0.342 & 0.452 & \textbf{0.561} & 0.533 & 0.632 \\
+Fine-Tuned & 0.342 & 0.452 & \textbf{0.561} & 0.533 & 0.632 \\
+\bottomrule
+\end{tabular}
+\end{table}
