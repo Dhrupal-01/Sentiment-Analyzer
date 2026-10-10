@@ -9,14 +9,15 @@
 
 > **Resume Summary**: `<PASTE RESUME LINE>`
 > 
-> *Engineered an end-to-end sentiment intelligence platform evaluating rule-based lexicons (VADER), pretrained encoders (RoBERTa, FinBERT), and fine-tuned DistilRoBERTa across 2,500+ news headlines; quantified the cross-domain generalization gap ($\Delta_{\text{domain}} = +0.144$) and explanation faithfulness (AOPC deletion curves via Integrated Gradients and SHAP), backed by a production FastAPI service, automated ingestion pipelines, and an interactive React dashboard.*
+> *Engineered an end-to-end sentiment intelligence platform evaluating rule-based lexicons (VADER), pretrained encoders (RoBERTa, FinBERT), and fine-tuned DistilRoBERTa across 2,488 benchmark headlines (Financial PhraseBank and 300 curated in-domain headlines across 5 beats); quantified the cross-domain generalization gap ($\Delta_{\text{domain}} = +0.144$) and explanation faithfulness (AOPC deletion curves via Integrated Gradients and SHAP), backed by a production FastAPI service, automated ingestion pipelines, and an interactive React dashboard.*
 
 ---
 
 ## Live Demo & Preview
 
-- **Live Dashboard**: [https://news-sentiment-analyzer.vercel.app](https://news-sentiment-analyzer.vercel.app) *(or local `http://localhost:3000` via Docker)*
-- **Interactive OpenAPI Docs**: [https://news-sentiment-api.hf.space/docs](https://news-sentiment-api.hf.space/docs) *(or local `http://localhost:8000/docs`)*
+- **Local Interactive Dashboard**: [http://localhost:3000](http://localhost:3000) *(via Docker Compose)* or `http://localhost:5173` *(Vite dev)*
+- **Interactive OpenAPI Docs**: [http://localhost:8000/docs](http://localhost:8000/docs) *(via Docker Compose)* or `http://127.0.0.1:8001/docs` *(Local API)*
+- *Production cloud hosting configured for Vercel (frontend) and Hugging Face Spaces / Render (containerized backend).*
 
 ```
 +-----------------------------------------------------------------------------------------+
@@ -142,11 +143,17 @@ newsent collect --source gdelt --limit 50
 newsent analyze --model vader
 newsent analyze --model roberta
 
-# Explain a headline prediction in the terminal
+# Explain a headline prediction in the terminal with token attribution
 newsent explain "Tech stocks rally as market confidence improves" --model vader --method occlusion
+
+# Compare model predictions and agreement metrics across a topic
+newsent compare --topic markets
 
 # Launch interactive CLI labeling tool for annotating datasets
 newsent label
+
+# Compute Cohen's kappa and agreement across annotators
+newsent label-agreement --annotator1 annotator_1 --annotator2 reviewer_2
 ```
 
 ---
@@ -196,7 +203,7 @@ Comparing top-$k$ attribution tokens against 100 human-annotated headline ration
 
 ## Limitations
 
-1. **Headline Brevity & Context Loss**: Headlines average 11.4 words and frequently omit surrounding contextual qualifiers. Subtleties, background facts, and author intent present in the full article text cannot always be resolved from the title alone.
+1. **Headline Brevity & Context Loss**: Headlines average 11.2 words across our in-domain benchmark and frequently omit surrounding contextual qualifiers. Subtleties, background facts, and author intent present in the full article text cannot always be resolved from the title alone.
 2. **Lexicon Domain Blind Spots**: VADER misclassifies industry-specific domain terminology (*"yields climb"*, *"rate hike"*, *"antitrust sanctions"*) because financial idioms are absent from general social media lexicons.
 3. **CPU Inference Latency**: Computing game-theoretic Shapley coalitions (SHAP) or 50-step path integrals (Integrated Gradients) on CPU introduces a 50–200 ms latency per headline. Live production serving uses database and LRU in-memory attribution caching to achieve sub-millisecond response times.
 4. **Benchmark Contamination**: Models trained directly on Financial PhraseBank (such as FinBERT) exhibit inflated benchmark scores; our test harness explicitly flags contaminated architectures.
