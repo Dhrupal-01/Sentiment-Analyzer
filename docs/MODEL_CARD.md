@@ -75,6 +75,9 @@ The model is trained via `scripts/train.py` using Hugging Face `Trainer` driven 
 
 ## Multi-Seed Evaluation & Benchmark Results
 
+> [!NOTE]
+> **Execution Status**: The multi-seed variance numbers below reflect the validation checkpoint simulation pipeline generated via `scripts/train.py --dry-run` and recorded in `reports/training/run_summary.json`. Binary PyTorch checkpoint weights (`model.safetensors`) will be generated once full GPU training is completed on Google Colab or Kaggle.
+
 To avoid cherry-picking single runs, the model is trained across 3 random seeds.
 We report sample mean ± standard deviation ($\mu \pm \sigma$):
 

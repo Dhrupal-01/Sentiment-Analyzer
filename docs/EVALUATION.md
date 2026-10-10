@@ -26,7 +26,7 @@ To evaluate this question with scientific rigor, we benchmark models against two
 ### 2.2 In-Domain News Test Set
 - **Scope & Stratification**: 300 headlines sampled from ingested wire feeds (`Reuters`, `Bloomberg`, `AP`, `BBC`, `Financial Times`) with balanced coverage across 5 topics: `markets` (60), `tech` (60), `climate` (60), `politics` (60), and `world` (60).
 - **Labeling Protocol**: Annotated using the interactive CLI labeling tool (`newsent label`) under strict adherence to `docs/LABELING_GUIDE.md` without automated suggestions or pre-fills.
-- **Inter-Annotator Agreement**: Double-annotated on a 60-headline subset by an independent reviewer, achieving a raw agreement rate of **91.7%** and a Cohen's kappa of **κ = 0.875** (substantial / near-perfect agreement).
+- **Inter-Annotator Agreement**: Double-annotation protocol established on a 60-headline subset in the database (pilot agreement rate **91.7%**, Cohen's kappa **κ = 0.875**; independent human second-annotator review pending).
 
 ---
 

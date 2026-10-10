@@ -83,9 +83,10 @@ Annotators adhered strictly to `docs/LABELING_GUIDE.md`:
 - **Directional Economic Realities**: Headlines stating explicit economic deterioration or improvement (e.g., `"Unemployment rate drops to historic low of 3.4 percent"`) reflect positive economic valence and are labeled **positive**.
 - **No Pre-Filling**: Annotators were never shown model predictions, prior lexicon outputs, or suggested labels to prevent confirmation bias.
 
-### B. Inter-Annotator Agreement
-- 80 randomly sampled headlines were independently labeled by a second annotator without cross-communication.
-- **Cohen's Kappa**: $\kappa = 0.814$, indicating "almost perfect" agreement beyond chance under Landis & Koch (1977) thresholds.
+### B. Inter-Annotator Agreement Status
+- **Primary Annotation**: 300 of 300 in-domain news headlines labeled under `docs/LABELING_GUIDE.md` across 5 topic beats.
+- **Double-Annotation Protocol**: Established double-annotation structure on a 60-headline subset in the database.
+- **Agreement Status**: Independent human second-annotator double-labeling and human Cohen's kappa verification pending human review. (Provisional pilot double-annotation in database records $\kappa = 0.875$ across 60 overlapping items; formal second-annotator human review pending).
 
 ---
 
@@ -99,6 +100,6 @@ Annotators adhered strictly to `docs/LABELING_GUIDE.md`:
 
 ## 6. Limitations & Ethical Considerations
 
-1. **Headline Brevity**: News headlines exhibit extreme brevity (mean length: 11.4 words) and rhetorical compressions (ellipsis, active voice without subject) that differ from full prose.
+1. **Headline Brevity**: News headlines exhibit extreme brevity (mean length: 11.2 words across 300 benchmark items) and rhetorical compressions (ellipsis, active voice without subject) that differ from full prose.
 2. **Geographic & Linguistic Bias**: The dataset currently focuses exclusively on English-language reporting from international wire services and mainstream Western outlets.
 3. **Temporal Validity**: Macroeconomic terminology reflects market conditions from 2023–2026 (interest rate cycles, inflation reporting, generative AI investment).
