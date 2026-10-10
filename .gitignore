@@ -44,3 +44,6 @@ frontend/.cache/
 # OS artifacts
 .DS_Store
 Thumbs.db
+
+# Private defense notes
+prep/
