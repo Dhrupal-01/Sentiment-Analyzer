@@ -83,7 +83,8 @@ export class NewsSentimentApiClient {
     }
 
     if (!response.ok) {
-      let errorPayload: any = null;
+      let errorPayload: { error?: { code?: string; message?: string; details?: unknown } } | null =
+        null;
       try {
         errorPayload = await response.json();
       } catch {
@@ -225,4 +226,11 @@ export class NewsSentimentApiClient {
   }
 }
 
-export const apiClient = new NewsSentimentApiClient();
+/**
+ * Base URL of the backend. Leave VITE_API_BASE_URL unset when the frontend is served from the same
+ * origin as the API (Vite dev proxy or the nginx container). Set it to the backend's public URL when
+ * the frontend is hosted separately, for example on Vercel or Netlify.
+ */
+const configuredBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? '';
+
+export const apiClient = new NewsSentimentApiClient(configuredBaseUrl.replace(/\/+$/, ''));

@@ -103,7 +103,7 @@ describe('NewsSentimentApiClient', () => {
 
     const res = await client.analyze({ texts: ['Tech rally continues'], models: ['vader'] });
     expect(res.texts_count).toBe(1);
-    expect(res.results[0].predictions.vader.label).toBe('positive');
+    expect(res.results[0]?.predictions.vader?.label).toBe('positive');
   });
 
   it('triggers collect and analyze background job with api key header', async () => {
